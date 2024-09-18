@@ -1,0 +1,80 @@
+.configuration-page-container {
+  box-sizing: border-box;
+  outline: none;
+  border: none;
+  text-decoration: none;
+  text-transform: capitalize;
+  transition: 0.2s linear;
+  background: linear-gradient(45deg, blueviolet, lightgreen);
+  padding: 15px 9%;
+  height: 100vh;
+}
+
+.configuration-page-box-container {
+  background: #fff;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  padding: 10px 20px;
+  overflow: auto; /* hides any overflowing content */
+  margin-bottom: 30px;
+}
+
+.success-message {
+  color: green;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.error-message {
+  color: red;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.configuration-page-box-title {
+  margin-bottom: 30px;
+}
+
+.configuration-page-box-form {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+}
+
+.configuration-page-box-input {
+  margin: 20px 0 12px 0;
+  width: calc(100% / 2 - 20px);
+}
+.configuration-page-box-input-title {
+  color: black;
+  position: relative;
+}
+
+.configuration-page-box-input input {
+  height: 45px;
+  width: 100%;
+  color: black;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.configuration-page-box-submit {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 10%;
+}
+
+.configuration-page-box-input-button {
+  margin-top: 10px;
+  display: inline-block;
+  background: #140202;
+  color: #fff;
+  font-size: 17px;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 25px;
+  cursor: pointer;
+}

@@ -1,0 +1,84 @@
+.history-page-container {
+  box-sizing: border-box;
+  outline: none;
+  border: none;
+  text-decoration: none;
+  text-transform: capitalize;
+  transition: 0.2s linear;
+  background: linear-gradient(45deg, blueviolet, lightgreen);
+  padding: 15px 9%;
+  padding-bottom: 100px;
+  height: 100vh;
+}
+
+.history-page-textarea-container {
+  margin-top: 10px;
+}
+
+.history-page-button-run-deployer {
+  margin-top: 10px;
+  display: inline-block;
+  background: #140202;
+  color: #fff;
+  font-size: 17px;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 25px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+
+.history-page-textarea {
+  background-color: #fff;
+  color: black;
+  padding: 1em;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  border-color: black;
+  outline: none;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.6;
+  width: 100%;
+  height: 80vh;
+  transition: all 0.2s;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}
+
+.history-page-button-run-deployer:disabled {
+  opacity: 0.6;
+}
+
+.history-page-button-run-deployer:disabled:hover {
+  cursor: not-allowed;
+}
+
+.history-page-alert {
+  color: rgb(0, 0, 0);
+  margin-left: 20px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.history-page-clients-checkbox {
+  margin-top: 10px;
+}
+
+.history-page-clients-checkbox label {
+  color: black;
+  font-size: 16px;
+  font-weight: 600;
+  margin-right: 20px;
+}
+
+.history-page-clients-checkbox input {
+  margin-right: 10px;
+}
+
+.history-page-alert {
+  margin-top: 10px;
+  color: red;
+  font-size: 20px;
+  font-weight: 500;
+}

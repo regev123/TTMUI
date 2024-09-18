@@ -1,0 +1,98 @@
+.installation-page-container {
+  box-sizing: border-box;
+  outline: none;
+  border: none;
+  text-decoration: none;
+  text-transform: capitalize;
+  transition: 0.2s linear;
+  background: linear-gradient(45deg, blueviolet, lightgreen);
+  padding: 15px 9%;
+  height: 100vh;
+  overflow: auto; /* hides any overflowing content */
+}
+.installation-page-clients-container {
+  margin-top: 25px;
+  background: #fff;
+  width: 100%;
+  border-radius: 5px;
+  padding: 10px 20px;
+}
+
+.installation-page-clients-title {
+  margin-bottom: 30px;
+}
+
+.installation-page-clients-checkbox label {
+  color: black;
+  font-size: 16px;
+  font-weight: 600;
+  margin-right: 20px;
+}
+
+.installation-page-clients-checkbox input {
+  margin-right: 10px;
+}
+
+.configuration-page-box-form {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.configuration-page-box-user-details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: calc(
+    100% - 200px
+  ); /* Adjust width to leave space for the button column */
+}
+
+.configuration-page-box-input {
+  margin: 20px 0 12px 0;
+  width: calc(100% / 2 - 20px);
+}
+.configuration-page-box-input-title {
+  color: black;
+  position: relative;
+}
+
+.configuration-page-box-input input {
+  height: 45px;
+  width: 100%;
+  color: black;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.configuration-page-box-submit {
+  display: flex;
+  align-items: flex-end; /* Align the button to the bottom of the form */
+  justify-content: center; /* Center the button horizontally */
+}
+
+.configuration-page-box-input-button {
+  margin-top: 10px;
+  display: inline-block;
+  background: #140202;
+  color: #fff;
+  font-size: 17px;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 25px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.configuration-page-box-input-button-disabled {
+  margin-top: 10px;
+  display: inline-block;
+  background: #140202;
+  color: #fff;
+  font-size: 17px;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 25px;
+  cursor: not-allowed;
+  width: 100%;
+}

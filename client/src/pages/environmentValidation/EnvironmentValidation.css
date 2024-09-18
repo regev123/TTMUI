@@ -1,0 +1,135 @@
+.environment-validation-page-container {
+  box-sizing: border-box;
+  outline: none;
+  border: none;
+  text-decoration: none;
+  text-transform: capitalize;
+  transition: 0.2s linear;
+  background: linear-gradient(45deg, blueviolet, lightgreen);
+  padding: 15px 9%;
+  height: 100%;
+}
+
+.environment-validation-page-box-container {
+  background: #fff;
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  padding: 10px 20px;
+  overflow: auto;
+  margin-bottom: 30px;
+}
+
+.environment-validation-page-box-title {
+  margin-bottom: 30px;
+}
+
+.environment-validation-page-box-form {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.environment-validation-page-box-input {
+  margin: 20px 0 12px 0;
+  width: calc(100% / 2 - 20px);
+}
+.environment-validation-page-box-input-title {
+  color: black;
+  position: relative;
+}
+
+.environment-validation-page-box-input input {
+  height: 45px;
+  width: 100%;
+  color: black;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.environment-validation-page-box-db-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.environment-validation-page-box-db-details h6 {
+  display: flex;
+  justify-content: center;
+  color: black;
+  padding-top: 25px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.environment-validation-page-box-db-details i {
+  height: 50px;
+  min-width: 78px;
+  text-align: center;
+  line-height: 50px;
+  font-size: 20px;
+  transition: all 0.3s ease;
+  color: black;
+  margin-top: 35px;
+}
+
+.environment-validation-page-box-submit {
+  display: flex;
+  align-items: flex-end; /* Align the button to the bottom of the form */
+  justify-content: center; /* Center the button horizontally */
+}
+
+.environment-validation-page-box-input-button {
+  margin-top: 10px;
+  display: inline-block;
+  background: #140202;
+  color: #fff;
+  font-size: 17px;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 25px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.environment-validation-page-email-checkbox label {
+  color: black;
+  font-size: 16px;
+  font-weight: 600;
+  margin-right: 20px;
+}
+
+.environment-validation-page-email-checkbox input {
+  margin-right: 10px;
+}
+
+.environment-validation-page-box-email-input {
+  margin: 20px 0 12px 0;
+  width: calc(100% / 2 - 20px);
+}
+
+.environment-validation-page-box-email-input-title {
+  color: black;
+  position: relative;
+}
+
+.environment-validation-page-box-email-input input {
+  height: 45px;
+  width: 100%;
+  color: black;
+  padding: 15px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.environment-validation-page-box-input-email-button {
+  margin-top: 10px;
+  display: inline-block;
+  background: #140202;
+  color: #fff;
+  font-size: 17px;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 25px;
+  cursor: pointer;
+}

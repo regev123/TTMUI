@@ -1,0 +1,59 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: white;
+}
+
+.warpper-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 260px;
+  background-color: #11101d;
+  z-index: 100;
+  transition: all 0.5s ease;
+}
+
+.warpper-sidebar .sidebar-subject {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.warpper-sidebar .sidebar-list {
+  height: 100%;
+  padding: 30px 0 150px 0;
+  overflow: auto;
+}
+
+.warpper-sidebar .sidebar-list li {
+  position: relative;
+  list-style: none;
+  transition: all 0.4s ease;
+}
+
+.warpper-sidebar .sidebar-list li i {
+  height: 50px;
+  min-width: 78px;
+  text-align: center;
+  line-height: 50px;
+  font-size: 20px;
+  transition: all 0.3s ease;
+}
+
+.warpper-sidebar .sidebar-list li:hover {
+  background-color: #300c74;
+}
+
+.warpper-sidebar .sidebar-list li a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.warpper-sidebar .sidebar-list li a .sidebar-link-name {
+  font-size: 18px;
+  font-weight: 400;
+  transition: all 0.4s ease;
+}

@@ -1,0 +1,36 @@
+{
+  "name": "TTMUI",
+  "version": "1.0.0",
+  "description": "TTM Web for is activities",
+  "main": "index.js",
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2",
+    "config": "^3.3.12",
+    "express": "^4.19.2",
+    "nodemon": "^3.1.4",
+    "open": "^10.1.0",
+    "ssh2": "^1.15.0",
+    "ws": "^8.18.0"
+  },
+  "pkg": {
+    "assets": [
+      "client/build/**/*",
+      "client/build/static/**/*"
+    ],
+    "targets": [
+      "node18-win-x64"
+    ]
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "bin": "server.js"
+}
