@@ -1,7 +1,8 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import './Sidebar.css';
+import React from 'react'; // Import React library for building the component
+import { Link } from 'react-router-dom'; // Import Link for client-side routing
+import './Sidebar.css'; // Import CSS styles for the sidebar
 
+// Define an array of sidebar items, each with a route, icon, and label
 const sidebarItems = [
   { to: '/packager', icon: 'bx-package', label: 'Packager' },
   { to: '/deployer', icon: 'bx-send', label: 'Deployer' },
@@ -16,22 +17,37 @@ const sidebarItems = [
   },
 ];
 
+// Define the Sidebar component
 const Sidebar = () => {
   return (
     <div className='warpper-sidebar'>
-      <h2 className='sidebar-subject'>TTM-Web</h2>
+      {' '}
+      {/* Wrapper for the sidebar */}
+      <h2 className='sidebar-subject'>TTM-Web</h2> {/* Title of the sidebar */}
       <ul className='sidebar-list'>
-        {sidebarItems.map((item) => (
-          <li key={item.to}>
-            <Link className='sidebar-link-name' to={item.to}>
-              <i className={`bx ${item.icon}`}></i>
-              {item.label}
-            </Link>
-          </li>
-        ))}
+        {' '}
+        {/* Unordered list for sidebar items */}
+        {sidebarItems.map(
+          (
+            item // Map over sidebarItems array to create list items
+          ) => (
+            <li key={item.to}>
+              {' '}
+              {/* Use the route as a unique key */}
+              <Link className='sidebar-link-name' to={item.to}>
+                {' '}
+                {/* Link for navigation */}
+                <i className={`bx ${item.icon}`}></i>{' '}
+                {/* Icon for the sidebar item */}
+                {item.label} {/* Label text for the sidebar item */}
+              </Link>
+            </li>
+          )
+        )}
       </ul>
     </div>
   );
 };
 
+// Export the Sidebar component for use in other parts of the application
 export default Sidebar;

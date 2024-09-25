@@ -1,57 +1,63 @@
+/* Container for the dropdown component */
 .dropdown-container {
-  margin-top: 10px;
-  width: 100%;
-  user-select: none;
-  position: relative;
+  margin-top: 10px; /* Space above the dropdown */
+  width: 100%; /* Full width of the parent container */
+  user-select: none; /* Prevents text selection */
+  position: relative; /* Positions child elements absolutely within this container */
 }
 
+/* Style for the caret icon */
 .caret {
-  transition: all 0.2s;
-  position: relative;
-  width: 0;
-  height: 0;
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid #333;
+  transition: transform 0.2s; /* Smooth transition for the rotation */
+  width: 0; /* No width */
+  height: 0; /* No height */
+  border-left: 5px solid transparent; /* Left border for triangle shape */
+  border-right: 5px solid transparent; /* Right border for triangle shape */
+  border-top: 5px solid #333; /* Top border for the triangle pointing down */
 }
 
+/* Caret rotation when the dropdown is active */
 .caret.open {
-  transform: rotate(180deg); /* Rotates 90 degrees to point downwards */
+  transform: rotate(180deg); /* Rotate caret to point upwards */
 }
 
+/* Style for the dropdown button */
 .dropdown-btn {
-  padding: 15px 20px;
-  color: #333;
-  background: #fff;
-  box-shadow: 3px 3px 10px 6px rgba(0, 0, 0, 0.06);
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  justify-content: space-between;
-  border: 2px solid transparent;
-  border-radius: 10px;
+  padding: 15px 20px; /* Spacing inside the button */
+  color: #333; /* Text color */
+  background: #fff; /* Background color */
+  box-shadow: 3px 3px 10px 6px rgba(0, 0, 0, 0.06); /* Soft shadow effect */
+  font-weight: bold; /* Bold text */
+  display: flex; /* Use flexbox for layout */
+  align-items: center; /* Center items vertically */
+  justify-content: space-between; /* Space items across the button */
+  cursor: pointer; /* Pointer cursor on hover */
+  border: 2px solid transparent; /* Border for layout; can be changed on hover */
+  border-radius: 10px; /* Rounded corners */
 }
 
+/* Style for the dropdown content container */
 .dropdown-content {
-  position: absolute;
-  top: 110%;
-  padding: 15px;
-  width: 100%;
-  background: #fff;
-  box-shadow: 3px 3px 10px 6px rgba(15, 5, 145, 0.06);
-  font-weight: 500;
-  border: 2px solid transparent;
-  border-radius: 10px;
+  position: absolute; /* Positioned relative to the nearest positioned ancestor */
+  top: 110%; /* Position below the dropdown button */
+  padding: 15px; /* Spacing inside the dropdown */
+  width: 100%; /* Match the width of the dropdown button */
+  background: #fff; /* Background color */
+  box-shadow: 3px 3px 10px 6px rgba(15, 5, 145, 0.06); /* Soft shadow effect */
+  font-weight: 500; /* Medium weight text */
+  border: 2px solid transparent; /* Border for layout */
+  border-radius: 10px; /* Rounded corners */
 }
 
+/* Style for each item in the dropdown */
 .dropdown-item {
-  color: #333;
-  padding: 2px;
-  cursor: pointer;
-  transition: all 0.2s;
+  color: #333; /* Text color */
+  padding: 2px; /* Padding around each item */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background 0.2s; /* Smooth transition for background change */
 }
 
+/* Change background color on hover for dropdown items */
 .dropdown-item:hover {
-  background: #f4f4f4;
+  background: #f4f4f4; /* Light gray background on hover */
 }

@@ -1,88 +1,98 @@
+/* General container for the packager page */
 .packager-page-container {
-  box-sizing: border-box;
-  outline: none;
-  border: none;
-  text-decoration: none;
-  text-transform: capitalize;
-  transition: 0.2s linear;
-  background: linear-gradient(45deg, blueviolet, lightgreen);
-  padding: 15px 9%;
-  padding-bottom: 100px;
-  height: 100vh;
+  box-sizing: border-box; /* Ensures padding and borders are included in element's total width and height */
+  outline: none; /* Removes outline */
+  border: none; /* Removes border */
+  text-decoration: none; /* Removes text decoration */
+  text-transform: capitalize; /* Capitalizes text */
+  transition: 0.2s linear; /* Smooth transition for hover effects */
+  background: linear-gradient(
+    45deg,
+    blueviolet,
+    lightgreen
+  ); /* Background gradient */
+  padding: 15px 9% 100px; /* Padding with bottom padding for spacing */
+  height: 100vh; /* Full viewport height */
 }
 
+/* Container for the textarea */
 .packager-page-textarea-container {
-  margin-top: 10px;
+  margin-top: 10px; /* Space above the textarea */
 }
 
+/* Container for the run packager button and alert */
 .packager-page-container-run-packager {
-  display: flex;
-  flex-direction: column;
-  align-items: first baseline;
-  gap: 10px;
+  display: flex; /* Flexbox layout for alignment */
+  flex-direction: column; /* Stack items vertically */
+  align-items: flex-start; /* Align items to the start of the cross-axis */
+  gap: 10px; /* Space between items */
 }
 
+/* Styles for the run packager button */
 .packager-page-button-run-packager {
-  margin-top: 10px;
-  display: inline-block;
-  background: #140202;
-  color: #fff;
-  font-size: 17px;
-  border: none;
-  border-radius: 5px;
-  padding: 8px 25px;
-  cursor: pointer;
+  margin-top: 10px; /* Space above the button */
+  display: inline-block; /* Ensures the button can have margin */
+  background: #140202; /* Button background color */
+  color: #fff; /* Button text color */
+  font-size: 17px; /* Button text size */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 8px 25px; /* Padding for the button */
+  cursor: pointer; /* Pointer cursor on hover */
 }
 
+/* Styles for the textarea */
 .packager-page-textarea {
-  background-color: #fff;
-  color: black;
-  padding: 1em;
-  border-radius: 10px;
-  border: 2px solid transparent;
-  border-color: black;
-  outline: none;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 1.6;
-  width: 100%;
-  height: 80vh;
-  transition: all 0.2s;
-  white-space: pre-wrap;
-  overflow-y: auto;
+  background-color: #fff; /* White background for textarea */
+  color: black; /* Black text color */
+  padding: 1em; /* Padding inside the textarea */
+  border-radius: 10px; /* Rounded corners */
+  border: 2px solid black; /* Solid border */
+  outline: none; /* Removes outline */
+  font-weight: 500; /* Medium font weight */
+  font-size: 14px; /* Font size */
+  line-height: 1.6; /* Line height for readability */
+  width: 100%; /* Full width */
+  height: 80vh; /* Height set to 80% of viewport height */
+  transition: all 0.2s; /* Smooth transition for hover effects */
+  white-space: pre-wrap; /* Preserve whitespace and wrap text */
+  overflow-y: auto; /* Scroll if content overflows */
 }
 
+/* Styles for disabled button state */
 .packager-page-button-run-packager:disabled {
-  opacity: 0.6;
+  opacity: 0.6; /* Dimmed appearance for disabled button */
+  cursor: not-allowed; /* Not-allowed cursor on hover */
 }
 
-.packager-page-button-run-packager:disabled:hover {
-  cursor: not-allowed;
-}
-
+/* Styles for success alert */
 .packager-page-alert-success {
-  color: green;
-  font-size: 20px;
-  font-weight: 500;
+  color: green; /* Green color for success messages */
+  font-size: 20px; /* Font size */
+  font-weight: 500; /* Medium font weight */
 }
 
+/* Styles for failure alert */
 .packager-page-alert-failed {
-  color: red;
-  font-size: 20px;
-  font-weight: 500;
+  color: red; /* Red color for error messages */
+  font-size: 20px; /* Font size */
+  font-weight: 500; /* Medium font weight */
 }
 
-.packager-page-clients-checkbox label {
-  color: black;
-  font-size: 16px;
-  font-weight: 600;
-  margin-right: 20px;
-}
-
-.packager-page-clients-checkbox input {
-  margin-right: 10px;
-}
-
+/* Styles for client checkboxes */
 .packager-page-clients-checkbox {
-  margin-top: 10px;
+  margin-top: 10px; /* Space above checkboxes */
+}
+
+/* Styles for labels of checkboxes */
+.packager-page-clients-checkbox label {
+  color: black; /* Text color */
+  font-size: 16px; /* Font size */
+  font-weight: 600; /* Bold font weight */
+  margin-right: 20px; /* Space between labels */
+}
+
+/* Styles for checkbox inputs */
+.packager-page-clients-checkbox input {
+  margin-right: 10px; /* Space between checkbox and label */
 }

@@ -1,135 +1,139 @@
+/* Container Styles */
+/* Main container for the validation page. Uses a gradient background and full viewport height. */
 .environment-validation-page-container {
   box-sizing: border-box;
-  outline: none;
-  border: none;
-  text-decoration: none;
-  text-transform: capitalize;
-  transition: 0.2s linear;
-  background: linear-gradient(45deg, blueviolet, lightgreen);
-  padding: 15px 9%;
-  height: 100%;
+  background: linear-gradient(
+    45deg,
+    blueviolet,
+    lightgreen
+  ); /* Gradient background */
+  padding: 15px 9%; /* Padding around the container */
+  height: 100vh; /* Full height to fit viewport */
+  transition: 0.2s linear; /* Smooth transition for changes */
 }
 
+/* Box container inside the main page, holding form and content */
 .environment-validation-page-box-container {
-  background: #fff;
-  width: 100%;
-  height: 100%;
-  border-radius: 5px;
-  padding: 10px 20px;
-  overflow: auto;
-  margin-bottom: 30px;
+  background: #fff; /* White background for content area */
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px 20px; /* Inner spacing */
+  margin-bottom: 30px; /* Space below the container */
+  overflow: auto; /* Enables scrolling if content overflows */
 }
 
-.environment-validation-page-box-title {
-  margin-bottom: 30px;
-}
-
+/* Form and Input Styles */
+/* Flexbox container for organizing form elements */
 .environment-validation-page-box-form {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: wrap; /* Allows elements to wrap on smaller screens */
 }
 
-.environment-validation-page-box-input {
-  margin: 20px 0 12px 0;
-  width: calc(100% / 2 - 20px);
-}
-.environment-validation-page-box-input-title {
-  color: black;
-  position: relative;
-}
-
-.environment-validation-page-box-input input {
-  height: 45px;
-  width: 100%;
-  color: black;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 600;
+/* Styles for input fields inside the form */
+.environment-validation-page-box-input,
+.environment-validation-page-box-email-input {
+  margin: 20px 0 12px 0; /* Margin above and below inputs */
+  width: calc(
+    50% - 20px
+  ); /* Each input takes half the width with some spacing */
 }
 
-.environment-validation-page-box-db-details {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.environment-validation-page-box-db-details h6 {
-  display: flex;
-  justify-content: center;
-  color: black;
-  padding-top: 25px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.environment-validation-page-box-db-details i {
-  height: 50px;
-  min-width: 78px;
-  text-align: center;
-  line-height: 50px;
-  font-size: 20px;
-  transition: all 0.3s ease;
-  color: black;
-  margin-top: 35px;
-}
-
-.environment-validation-page-box-submit {
-  display: flex;
-  align-items: flex-end; /* Align the button to the bottom of the form */
-  justify-content: center; /* Center the button horizontally */
-}
-
-.environment-validation-page-box-input-button {
-  margin-top: 10px;
-  display: inline-block;
-  background: #140202;
-  color: #fff;
-  font-size: 17px;
-  border: none;
-  border-radius: 5px;
-  padding: 8px 25px;
-  cursor: pointer;
-  width: 100%;
-}
-
+/* Titles for input fields */
+.environment-validation-page-box-input-title,
+.environment-validation-page-box-email-input-title,
 .environment-validation-page-email-checkbox label {
   color: black;
-  font-size: 16px;
-  font-weight: 600;
-  margin-right: 20px;
+  font-size: 16px; /* Font size for labels */
+  font-weight: 600; /* Slightly bold for emphasis */
+  position: relative; /* Allows positioning of additional elements if needed */
 }
 
-.environment-validation-page-email-checkbox input {
-  margin-right: 10px;
-}
-
-.environment-validation-page-box-email-input {
-  margin: 20px 0 12px 0;
-  width: calc(100% / 2 - 20px);
-}
-
-.environment-validation-page-box-email-input-title {
-  color: black;
-  position: relative;
-}
-
+/* Styles for actual input elements inside the form */
+.environment-validation-page-box-input input,
 .environment-validation-page-box-email-input input {
-  height: 45px;
-  width: 100%;
-  color: black;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 600;
+  width: 100%; /* Full width inside the container */
+  height: 45px; /* Height of the input field */
+  padding: 15px; /* Padding inside the input */
+  color: black; /* Text color */
+  font-size: 16px; /* Font size */
+  font-weight: 600; /* Bold text */
 }
 
+/* Textarea Styles */
+/* Styles for the textarea where logs or large text data can be shown */
+.environment-validation-page-textarea {
+  background-color: #fff; /* White background */
+  color: black; /* Text color */
+  padding: 1em; /* Padding inside the textarea */
+  border: 1px solid black; /* Border with black color */
+  border-radius: 10px; /* Rounded corners */
+  font-size: 14px; /* Font size */
+  font-weight: 500; /* Medium font weight */
+  line-height: 1.6; /* Spacing between lines */
+  width: 100%; /* Full width */
+  height: 20vh; /* 20% of the viewport height */
+  max-height: 20vh; /* Maximum height set to avoid overflowing */
+  overflow-y: auto; /* Enables vertical scrolling if needed */
+  white-space: pre-wrap; /* Preserves formatting of the text */
+  transition: all 0.2s; /* Smooth transition for changes */
+}
+
+/* DB Details Section */
+/* Flexbox container for displaying database details in a structured way */
+.environment-validation-page-box-db-details {
+  display: flex;
+  align-items: center; /* Aligns content vertically at the center */
+  gap: 8px; /* Space between the items */
+}
+
+/* Heading style inside the DB details section */
+.environment-validation-page-box-db-details h6 {
+  justify-content: center; /* Centers the text horizontally */
+  color: black; /* Text color */
+  padding-top: 25px; /* Padding at the top */
+  font-size: 16px; /* Font size */
+  font-weight: 600; /* Bold text */
+}
+
+/* Icon styles inside the DB details section */
+.environment-validation-page-box-db-details i {
+  height: 50px; /* Height of the icon */
+  min-width: 78px; /* Minimum width of the icon container */
+  line-height: 50px; /* Vertically centers the text/icon */
+  text-align: center; /* Centers text/icon horizontally */
+  font-size: 20px; /* Icon size */
+  color: black; /* Icon color */
+  margin-top: 35px; /* Space above the icon */
+  transition: all 0.3s ease; /* Smooth transition for icon interactions */
+}
+
+/* Button Styles */
+/* Flexbox layout for buttons to ensure they are centered and aligned */
+.environment-validation-page-box-submit,
+.environment-validation-page-box-input-button,
 .environment-validation-page-box-input-email-button {
-  margin-top: 10px;
-  display: inline-block;
-  background: #140202;
-  color: #fff;
-  font-size: 17px;
-  border: none;
-  border-radius: 5px;
-  padding: 8px 25px;
-  cursor: pointer;
+  display: flex;
+  justify-content: center; /* Centers the buttons horizontally */
+  align-items: flex-end; /* Aligns the button at the bottom of the container */
+}
+
+/* Styling for action buttons */
+.environment-validation-page-box-input-button,
+.environment-validation-page-box-input-email-button {
+  margin-top: 10px; /* Space above the button */
+  background: #140202; /* Dark background color */
+  color: #fff; /* White text */
+  font-size: 17px; /* Font size */
+  padding: 8px 25px; /* Padding around the button text */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  width: 100%; /* Full width inside the container */
+}
+
+/* Checkbox Styles */
+/* Adds spacing between checkbox and label */
+.environment-validation-page-email-checkbox input {
+  margin-right: 10px; /* Space between checkbox and label text */
 }

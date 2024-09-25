@@ -1,59 +1,67 @@
+/* Wrapper for the spinner component */
 .wrapper-spinner {
-  margin: 0;
-  padding: 0;
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
 }
 
+/* Center the spinner within the viewport */
 .center-spiner {
-  display: flex;
-  text-align: center;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+  display: flex; /* Use flexbox for alignment */
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  min-height: 100vh; /* Full viewport height */
 }
 
+/* Style for the ring spinner */
 .ring-spinner {
-  position: absolute;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  animation: ring-spinner 2s linear infinite;
+  position: absolute; /* Position relative to the closest positioned ancestor */
+  width: 200px; /* Set fixed width */
+  height: 200px; /* Set fixed height */
+  border-radius: 50%; /* Create a circular shape */
+  animation: ring-spinner 2s linear infinite; /* Infinite rotation animation */
 }
+
+/* Keyframes for the ring spinner animation */
 @keyframes ring-spinner {
   0% {
-    transform: rotate(0deg);
-    box-shadow: 1px 5px 2px #e65c00;
+    transform: rotate(0deg); /* Start rotation */
+    box-shadow: 1px 5px 2px #e65c00; /* Initial shadow color */
   }
   50% {
-    transform: rotate(180deg);
-    box-shadow: 1px 5px 2px #18b201;
+    transform: rotate(180deg); /* Rotate halfway */
+    box-shadow: 1px 5px 2px #18b201; /* Midpoint shadow color */
   }
   100% {
-    transform: rotate(360deg);
-    box-shadow: 1px 5px 2px #0456c8;
+    transform: rotate(360deg); /* Complete rotation */
+    box-shadow: 1px 5px 2px #0456c8; /* End shadow color */
   }
 }
 
+/* Shadow effect for the ring spinner */
 .ring-spinner:before {
-  position: absolute;
-  content: '';
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  border-radius: 50%;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  position: absolute; /* Position the pseudo-element absolutely */
+  content: ''; /* Required for pseudo-elements */
+  left: 0; /* Align to the left */
+  top: 0; /* Align to the top */
+  height: 100%; /* Match the height of the ring spinner */
+  width: 100%; /* Match the width of the ring spinner */
+  border-radius: 50%; /* Maintain circular shape */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Subtle shadow effect */
 }
 
+/* Style for the text overlay on the spinner */
 .text-spinner {
-  color: #000000;
-  font-size: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  line-height: 200px;
-  animation: text-spinner 3s ease-in-out infinite;
+  color: #000000; /* Text color */
+  font-size: 20px; /* Set font size */
+  text-transform: uppercase; /* Transform text to uppercase */
+  letter-spacing: 1px; /* Add space between letters */
+  line-height: 200px; /* Center text vertically within the spinner */
+  animation: text-spinner 3s ease-in-out infinite; /* Infinite color change animation */
 }
+
+/* Keyframes for the text spinner animation */
 @keyframes text-spinner {
   50% {
-    color: white;
+    color: white; /* Change text color to white at halfway point */
   }
 }

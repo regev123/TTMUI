@@ -1,84 +1,86 @@
+/* Container Styles */
 .history-page-container {
   box-sizing: border-box;
+  background: linear-gradient(
+    45deg,
+    blueviolet,
+    lightgreen
+  ); /* Gradient background */
+  padding: 15px 9% 100px 9%; /* Combined padding */
+  height: 100vh; /* Full viewport height */
+  transition: 0.2s linear; /* Smooth transitions for any changes */
+  text-transform: capitalize; /* Capitalizes text */
   outline: none;
   border: none;
   text-decoration: none;
-  text-transform: capitalize;
-  transition: 0.2s linear;
-  background: linear-gradient(45deg, blueviolet, lightgreen);
-  padding: 15px 9%;
-  padding-bottom: 100px;
-  height: 100vh;
 }
 
+/* Textarea Container */
 .history-page-textarea-container {
-  margin-top: 10px;
+  margin-top: 10px; /* Space above the textarea */
 }
 
+/* Button Styles */
 .history-page-button-run-deployer {
-  margin-top: 10px;
-  display: inline-block;
-  background: #140202;
-  color: #fff;
-  font-size: 17px;
-  border: none;
-  border-radius: 5px;
-  padding: 8px 25px;
-  cursor: pointer;
-  align-self: flex-end;
-}
-
-.history-page-textarea {
-  background-color: #fff;
-  color: black;
-  padding: 1em;
-  border-radius: 10px;
-  border: 2px solid transparent;
-  border-color: black;
-  outline: none;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 1.6;
-  width: 100%;
-  height: 80vh;
-  transition: all 0.2s;
-  white-space: pre-wrap;
-  overflow-y: auto;
+  margin-top: 10px; /* Space above the button */
+  display: inline-block; /* Inline button */
+  background: #140202; /* Dark background */
+  color: #fff; /* White text */
+  font-size: 17px; /* Font size */
+  border: none; /* Removes border */
+  border-radius: 5px; /* Rounded corners */
+  padding: 8px 25px; /* Padding inside the button */
+  cursor: pointer; /* Pointer cursor */
+  align-self: flex-end; /* Align button at the end of the flex container */
 }
 
 .history-page-button-run-deployer:disabled {
-  opacity: 0.6;
+  opacity: 0.6; /* Fades button when disabled */
 }
 
 .history-page-button-run-deployer:disabled:hover {
-  cursor: not-allowed;
+  cursor: not-allowed; /* Shows not-allowed cursor on hover when disabled */
 }
 
+/* Textarea Styles */
+.history-page-textarea {
+  background-color: #fff; /* White background */
+  color: black; /* Text color */
+  padding: 1em; /* Padding inside the textarea */
+  border-radius: 10px; /* Rounded corners */
+  border: 2px solid black; /* Solid black border */
+  outline: none; /* Removes default outline */
+  font-weight: 500; /* Semi-bold font */
+  font-size: 14px; /* Font size */
+  line-height: 1.6; /* Spacing between lines */
+  width: 100%; /* Full width */
+  height: 80vh; /* Takes up 80% of the viewport height */
+  transition: all 0.2s; /* Smooth transition */
+  white-space: pre-wrap; /* Preserves text formatting */
+  overflow-y: auto; /* Scrolls vertically when content overflows */
+}
+
+/* Alert Message Styles */
 .history-page-alert {
-  color: rgb(0, 0, 0);
-  margin-left: 20px;
-  font-size: 20px;
-  font-weight: 500;
+  color: red; /* Red color for alert messages */
+  font-size: 20px; /* Font size for alert text */
+  font-weight: 500; /* Semi-bold font */
+  margin-top: 10px; /* Space above the alert */
+  margin-left: 20px; /* Space from the left */
 }
 
+/* Checkbox Styles */
 .history-page-clients-checkbox {
-  margin-top: 10px;
+  margin-top: 10px; /* Space above checkboxes */
 }
 
 .history-page-clients-checkbox label {
-  color: black;
-  font-size: 16px;
-  font-weight: 600;
-  margin-right: 20px;
+  color: black; /* Black label text */
+  font-size: 16px; /* Font size */
+  font-weight: 600; /* Bold label text */
+  margin-right: 20px; /* Space between checkboxes */
 }
 
 .history-page-clients-checkbox input {
-  margin-right: 10px;
-}
-
-.history-page-alert {
-  margin-top: 10px;
-  color: red;
-  font-size: 20px;
-  font-weight: 500;
+  margin-right: 10px; /* Space between checkbox and label */
 }

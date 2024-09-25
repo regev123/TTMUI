@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const config = require('config');
 const { Client } = require('ssh2');
+const loadConfigFile = require('./getConfigurationFile');
 const {
   addToExecString,
   addDisableToExecString,
@@ -64,25 +65,17 @@ const {
 // @access   Public
 router.post('/install', async (req, res) => {
   const installationConfiguration = req.body;
-
+  const config = await loadConfigFile();
   let stdout = '';
   let stderr = '';
-
+  ttmHome = config.configData.TTMHome;
   try {
     const conn = new Client();
 
     conn.on('ready', () => {
-      console.log('Client :: ready');
-
       // Execute the first command
       conn.exec(
-        `cd ${config.get(
-          'TTMHome'
-        )} && find . -mindepth 1 -delete && wget http://illin3301:28080/nexus/service/local/repositories/amd-core-fnd-Releases/content/com/amdocs/mec/packager/10.24.0.0/2024052607/10.24.0.0-2024052607.tar && tar -xvf 10.24.0.0-2024052607.tar && tar -xvf xpi-packaging-9.22.1.0.tar && jar -xvf ttm-packager-10.24.0.0-general-package-2024052607.jar product/template-topologies/EPC_TTM.topology && cd installer/bin/ && ./xpi_create_silent_property.sh  --details all ${config.get(
-          'TTMHome'
-        )}product/template-topologies/EPC_TTM.topology ${config.get(
-          'TTMHome'
-        )}ttm-packager-10.24.0.0-general-package-2024052607.jar`,
+        `cd ${ttmHome} && find . -mindepth 1 -delete && wget http://illin3301:28080/nexus/service/local/repositories/amd-core-fnd-Releases/content/com/amdocs/mec/packager/10.24.0.0/2024052607/10.24.0.0-2024052607.tar && tar -xvf 10.24.0.0-2024052607.tar && tar -xvf xpi-packaging-9.22.1.0.tar && jar -xvf ttm-packager-10.24.0.0-general-package-2024052607.jar product/template-topologies/EPC_TTM.topology && cd installer/bin/ && ./xpi_create_silent_property.sh  --details all ${ttmHome}product/template-topologies/EPC_TTM.topology ${ttmHome}ttm-packager-10.24.0.0-general-package-2024052607.jar`,
         (err, stream) => {
           if (err) {
             console.error('Command execution error:', err);
@@ -107,9 +100,7 @@ router.post('/install', async (req, res) => {
               console.error('First command failed with stderr:', stderr);
               return res.status(500).send('First command failed');
             }
-            let execString = `cd ${config.get(
-              'TTMHome'
-            )}product/template-topologies/ && ${OVERRIDE_DATA_PUMP_FILE} `;
+            let execString = `cd ${ttmHome}product/template-topologies/ && ${OVERRIDE_DATA_PUMP_FILE} `;
             if (installationConfiguration.clients.includes('ABP')) {
               //ABP_EPCT_DP_PATH
               execString = addToExecString(
@@ -484,13 +475,7 @@ router.post('/install', async (req, res) => {
                 }
                 // Execute the Third command only after the first has completed
                 conn.exec(
-                  `cd ${config.get(
-                    'TTMHome'
-                  )}installer/bin/ && ./xpi_installer.sh -i -p ttm-packager-10.24.0.0-general-package-2024052607.jar -t ${config.get(
-                    'TTMHome'
-                  )}product/template-topologies/EPC_TTM.topology -pr ${config.get(
-                    'TTMHome'
-                  )}product/template-topologies/EPC_TTM.properties `,
+                  `cd ${ttmHome}installer/bin/ && ./xpi_installer.sh -i -p ttm-packager-10.24.0.0-general-package-2024052607.jar -t ${ttmHome}product/template-topologies/EPC_TTM.topology -pr ${ttmHome}product/template-topologies/EPC_TTM.properties `,
                   (err, stream) => {
                     if (err) {
                       console.error('Command execution error:', err);
@@ -538,10 +523,10 @@ router.post('/install', async (req, res) => {
     });
 
     conn.connect({
-      host: config.get('TTMhost'),
-      port: config.get('TTMport'),
-      username: config.get('TTMusername'),
-      password: config.get('TTMpassword'),
+      host: config.configData.TTMhost,
+      port: config.configData.TTMport,
+      username: config.configData.TTMusername,
+      password: config.configData.TTMpassword,
     });
   } catch (error) {
     console.error('Unexpected error:', error);

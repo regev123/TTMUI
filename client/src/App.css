@@ -1,14 +1,20 @@
+/* Importing the Poppins font from Google Fonts for use in the application */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
+/* Applying the Poppins font to all elements in the application */
 * {
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Poppins', sans-serif; /* Default font set to Poppins with sans-serif as fallback */
 }
 
+/* Styles for the sidebar with a fixed position on the page */
 .page-fixed-position-sidebar {
-  width: calc(100%-260px);
-  margin-left: 260px;
+  width: calc(
+    100% - 260px
+  ); /* Setting width to 100% minus 260px (the width of the sidebar) */
+  margin-left: 260px; /* Adding left margin to create space for the sidebar */
 }
 
+/* Styles for main heading (h1) */
 h1 {
-  color: black;
+  color: black; /* Setting the text color of h1 elements to black */
 }

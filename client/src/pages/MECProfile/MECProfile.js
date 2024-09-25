@@ -1,34 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import './MECProfile.css';
 import api from '../../utils/api';
+import Spinner from '../../components/layout/Spinner';
 
 const MECProfile = () => {
   const [emailFormData, setEmailFormData] = useState({
     EmailChcekcd: false,
     EmailString: '',
   });
-  const [error, setError] = useState('');
-
+  const [alert, setAlert] = useState('');
+  const [loading, setLoading] = useState(true);
   const { EmailChcekcd, EmailString } = emailFormData;
 
-  //to change for get the mec profile configuration
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       const res = await api.get('/configuration/getConfiguration');
-  //       setFormData(res.data);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  //   fetchData();
-  // }, []); // Empty dependency array means this effect runs only once on mount
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await api.get('/configuration/getReportEmail');
+        setEmailFormData({
+          EmailChcekcd: res.data.EmailSelected === 'Y' ? true : false,
+          EmailString: res.data.EmailString,
+        });
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   const handleSubmitEmail = async (e) => {
-    const res = await api.post(
-      '/configuration/changeReportEmail',
-      emailFormData
-    );
+    setLoading(true);
+    try {
+      const res = await api.post(
+        '/configuration/changeReportEmail',
+        emailFormData
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const onChangeEmail = (e) => {
@@ -47,6 +59,8 @@ const MECProfile = () => {
       EmailChcekcd: !prevData.EmailChcekcd,
     }));
   };
+
+  if (loading) return <Spinner />;
 
   return (
     <div className='page-fixed-position-sidebar'>
@@ -72,7 +86,7 @@ const MECProfile = () => {
                   Email
                 </span>
                 <input
-                  value={EmailString}
+                  value={EmailChcekcd ? EmailString : ''}
                   name='EmailString'
                   onChange={(e) => onChangeEmail(e)}
                   type='text'
