@@ -1,15 +1,15 @@
 {
-  "TTMhost": "",
+  "TTMhost": "illin2503",
   "TTMport": 22,
-  "TTMusername": "",
-  "TTMpassword": "",
-  "TTMHome": "",
+  "TTMusername": "aspim920",
+  "TTMpassword": "Mecbis11!",
+  "TTMHome": "/epcusers/epc/users/aspim920/TTM922/",
   "TTMPackagerCommand": "./MEC_packager.ksh ../WORK_DIR/MEC.profile.ksh",
   "TTMDeployerCommand": "./MEC_deployer.ksh ../WORK_DIR/MEC.profile.ksh",
   "hostname": "127.0.0.1",
   "port": 5000,
   "wsPackagerPort": 7000,
   "wsDeployerPort": 8000,
-  "EmailChcekcd": false,
-  "EmailString": ""
+  "EmailChcekcd": true,
+  "EmailString": "regeva@amdocs.com yaron@amdocs.com"
 }
