@@ -3,7 +3,7 @@
   margin: 0; /* Remove default margin */
   padding: 0; /* Remove default padding */
   box-sizing: border-box; /* Include padding and border in element's total width and height */
-  color: white; /* Default text color for the entire document */
+  color: rgb(255, 255, 255); /* Default text color for the entire document */
 }
 
 /* Wrapper for the sidebar */

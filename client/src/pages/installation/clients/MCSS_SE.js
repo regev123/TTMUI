@@ -1,94 +1,86 @@
-import React, { useEffect, useState } from 'react';
-import './MCSS_SE.css';
+import React from 'react'; // Import React library
+import './MCSS_SE.css'; // Import associated CSS file
 
-const MCSS_SE = ({ MCSSSEformData, setMCSSSEformData }) => {
+const MCSS_SE = ({ MCSS_SEformData, setMCSS_SEFormData }) => {
+  // Destructure form data for cleaner access
   const {
-    MCSS_SE_EPCT_DP_PATH,
-    MCSS_SE_SRC_DB_USER,
-    MCSS_SE_SRC_DB_PASSWORD,
-    MCSS_SE_SRC_DB_INSTANCE,
-    MCSS_SE_TRG_DB_CONN_STRING,
-  } = MCSSSEformData;
+    ORACLE_DATA_PUMP_DIR,
+    ORACLE_DATA_PUMP_DIR_PATH,
+    SRC_DB_USER,
+    SRC_DB_PASSWORD,
+    SRC_DB_INSTANCE,
+    TRG_DB_CONN_STRING,
+  } = MCSS_SEformData;
 
-  const onChange = (e) => {
-    const { name, value } = e.target;
-
-    setMCSSSEformData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+  // Handle changes in input fields
+  const onChange = ({ target: { name, value } }) => {
+    setMCSS_SEFormData({ [name]: value }); // Update form data
   };
+
+  // Array of form fields to reduce code repetition
+  const formFields = [
+    {
+      label: 'MCSS SE the Oracle Data Pump directory *',
+      value: ORACLE_DATA_PUMP_DIR,
+      name: 'ORACLE_DATA_PUMP_DIR',
+    },
+    {
+      label: 'MCSS SE Path for the Oracle Data Pump directory *',
+      value: ORACLE_DATA_PUMP_DIR_PATH,
+      name: 'ORACLE_DATA_PUMP_DIR_PATH',
+    },
+    {
+      label: 'MCSS SE Source DB User *',
+      value: SRC_DB_USER,
+      name: 'SRC_DB_USER',
+    },
+    {
+      label: 'MCSS SE Source DB Password *',
+      value: SRC_DB_PASSWORD,
+      name: 'SRC_DB_PASSWORD',
+    },
+    {
+      label: 'MCSS SE Source DB Instance *',
+      value: SRC_DB_INSTANCE,
+      name: 'SRC_DB_INSTANCE',
+    },
+    {
+      label: 'MCSS SE Target DB Connection String *',
+      value: TRG_DB_CONN_STRING,
+      name: 'TRG_DB_CONN_STRING',
+      placeholder: 'String structure DB_USER/DB_PASSWORD@DB_INSTANCE',
+    },
+  ];
 
   return (
     <div className='installation-mcss_se-component-container'>
       <div className='installation-mcss_se-component-title'>
-        <h1>MCSS SE configuration</h1>
+        <h1>MCSS SE Configuration</h1> {/* Title of the configuration */}
       </div>
 
       <div className='installation-mcss_se-component-form'>
-        <div className='installation-mcss_se-component-form-input'>
-          <span className='installation-mcss_se-component-form-input-title'>
-            MCSS SE Path for the Oracle Data Pump directory
-          </span>
-          <input
-            value={MCSS_SE_EPCT_DP_PATH}
-            name='MCSS_SE_EPCT_DP_PATH'
-            onChange={(e) => onChange(e)}
-            type='text'
-            required
-          ></input>
-        </div>
-        <div className='installation-mcss_se-component-form-input'>
-          <span className='installation-mcss_se-component-form-input-title'>
-            MCSS SE Source DB User
-          </span>
-          <input
-            value={MCSS_SE_SRC_DB_USER}
-            name='MCSS_SE_SRC_DB_USER'
-            onChange={(e) => onChange(e)}
-            type='text'
-            required
-          ></input>
-        </div>
-        <div className='installation-mcss_se-component-form-input'>
-          <span className='installation-mcss_se-component-form-input-title'>
-            MCSS SE Source DB Password
-          </span>
-          <input
-            value={MCSS_SE_SRC_DB_PASSWORD}
-            name='MCSS_SE_SRC_DB_PASSWORD'
-            onChange={(e) => onChange(e)}
-            type='text'
-            required
-          ></input>
-        </div>
-        <div className='installation-mcss_se-component-form-input'>
-          <span className='installation-mcss_se-component-form-input-title'>
-            MCSS SE Source DB Instance
-          </span>
-          <input
-            value={MCSS_SE_SRC_DB_INSTANCE}
-            name='MCSS_SE_SRC_DB_INSTANCE'
-            onChange={(e) => onChange(e)}
-            type='text'
-            required
-          ></input>
-        </div>
-        <div className='installation-mcss_se-component-form-input'>
-          <span className='installation-mcss_se-component-form-input-title'>
-            MCSS SE Target DB Connection String
-          </span>
-          <input
-            value={MCSS_SE_TRG_DB_CONN_STRING}
-            name='MCSS_SE_TRG_DB_CONN_STRING'
-            onChange={(e) => onChange(e)}
-            type='text'
-            required
-          ></input>
-        </div>
+        {/* Render form fields dynamically */}
+        {formFields.map((field, index) => (
+          <div
+            className='installation-mcss_se-component-form-input'
+            key={index}
+          >
+            <span className='installation-mcss_se-component-form-input-title'>
+              {field.label} {/* Display the label for the input */}
+            </span>
+            <input
+              value={field.value} // Input value from form data
+              name={field.name} // Input name for form data binding
+              onChange={onChange} // Handle input changes
+              type='text' // Input type
+              placeholder={field.placeholder ? field.placeholder : ''}
+              required // Mark field as required
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-export default MCSS_SE;
+export default MCSS_SE; // Export the component for use in other parts of the application

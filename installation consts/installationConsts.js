@@ -1,3 +1,9 @@
+const OVERRIDE_DATA_PUMP_FILE =
+  "sed -i 's|^#Profiles_Configuration/override_datapump_file=.*|Profiles_Configuration/override_datapump_file=OVERRIDE_DATA_PUMP_FILE|' EPC_TTM.properties";
+
+const REMOTE_DB_USER =
+  "sed -i 's|^Profiles_Configuration/epct.remote_db_usr=.*|Profiles_Configuration/epct.remote_db_usr=REMOTE_DB_USER|' EPC_TTM.properties";
+
 const ABP_CLIENT_DISABLE =
   "sed -i 's|^EPC_TTM/abp.check=.*|EPC_TTM/abp.check=false|' EPC_TTM.properties";
 
@@ -13,11 +19,11 @@ const MCSS_SE_CLIENT_DISABLE =
 const ACPE_CLIENT_DISABLE =
   "sed -i 's|^EPC_TTM/acpe.check=.*|EPC_TTM/acpe.check=false|' EPC_TTM.properties";
 
-const OVERRIDE_DATA_PUMP_FILE =
-  "sed -i 's|^#Profiles_Configuration/override_datapump_file=.*|Profiles_Configuration/override_datapump_file=YES|' EPC_TTM.properties";
-
 const ABP_EPCT_DP_DIR_DISABLE =
   "sed -i 's|^Profiles_Configuration/ABP/ABP.profile/abp.EPCT_DP_DIR=DP_DMP_EPCT.*|#Profiles_Configuration/ABP/ABP.profile/abp.EPCT_DP_DIR=DP_DMP_EPCT|' EPC_TTM.properties";
+
+const ABP_EPCT_DP_DIR =
+  "sed -i 's|^Profiles_Configuration/ABP/ABP.profile/abp.EPCT_DP_DIR=DP_DMP_EPCT.*|Profiles_Configuration/ABP/ABP.profile/abp.EPCT_DP_DIR=ABP_EPCT_DP_DIR|' EPC_TTM.properties";
 
 const ABP_EPCT_DP_PATH =
   "sed -i 's|^#Profiles_Configuration/ABP/ABP.profile/abp.EPCT_DP_PATH=.*|Profiles_Configuration/ABP/ABP.profile/abp.EPCT_DP_PATH=ABP_EPCT_DP_PATH|' EPC_TTM.properties";
@@ -48,6 +54,9 @@ const ABP_TRG_DB_CONN_STRING =
 const OMS_EPCT_DP_DIR_DISABLE =
   "sed -i 's|^Profiles_Configuration/OMS/OMS.profile/oms.EPCT_DP_DIR=DP_DMP_EPCT.*|#Profiles_Configuration/OMS/OMS.profile/oms.EPCT_DP_DIR=DP_DMP_EPCT|' EPC_TTM.properties";
 
+const OMS_EPCT_DP_DIR =
+  "sed -i 's|^Profiles_Configuration/OMS/OMS.profile/oms.EPCT_DP_DIR=DP_DMP_EPCT.*|Profiles_Configuration/OMS/OMS.profile/oms.EPCT_DP_DIR=OMS_EPCT_DP_DIR|' EPC_TTM.properties";
+
 const OMS_EPCT_DP_PATH =
   "sed -i 's|^#Profiles_Configuration/OMS/OMS.profile/oms.EPCT_DP_PATH=.*|Profiles_Configuration/OMS/OMS.profile/oms.EPCT_DP_PATH=OMS_EPCT_DP_PATH|' EPC_TTM.properties";
 
@@ -77,17 +86,20 @@ const OMS_TRG_DB_CONN_STRING =
 const OMS_SE_EPCT_DP_DIR_DISABLE =
   "sed -i 's|^Profiles_Configuration/OMS_SE/OMS_SE.profile/oms_se.EPCT_DP_DIR=DP_DMP_EPCT.*|#Profiles_Configuration/OMS_SE/OMS_SE.profile/oms_se.EPCT_DP_DIR=DP_DMP_EPCT|' EPC_TTM.properties";
 
+const OMS_SE_EPCT_DP_DIR =
+  "sed -i 's|^Profiles_Configuration/OMS_SE/OMS_SE.profile/oms_se.EPCT_DP_DIR=.*|Profiles_Configuration/OMS_SE/OMS_SE.profile/oms_se.EPCT_DP_DIR=OMS_SE_EPCT_DP_DIR|' EPC_TTM.properties";
+
 const OMS_SE_EPCT_DP_PATH =
   "sed -i 's|^#Profiles_Configuration/OMS_SE/OMS_SE.profile/oms_se.EPCT_DP_PATH=.*|Profiles_Configuration/OMS_SE/OMS_SE.profile/oms_se.EPCT_DP_PATH=OMS_SE_EPCT_DP_PATH|' EPC_TTM.properties";
 
 const OMS_SE_SRC_DB_USER =
-  "sed -i 's|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_user=.*|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_user=OMS_SE_SRC_DB_USER|' EPC_TTM.properties";
+  "sed -i 's|^Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_user=.*|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_user=OMS_SE_SRC_DB_USER|' EPC_TTM.properties";
 
 const OMS_SE_SRC_DB_PASSWORD =
-  "sed -i 's|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_password=.*|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_password=OMS_SE_SRC_DB_PASSWORD|' EPC_TTM.properties";
+  "sed -i 's|^Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_password=.*|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_password=OMS_SE_SRC_DB_PASSWORD|' EPC_TTM.properties";
 
 const OMS_SE_SRC_DB_INSTANCE =
-  "sed -i 's|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_instance=.*|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_instance=OMS_SE_SRC_DB_INSTANCE|' EPC_TTM.properties";
+  "sed -i 's|^Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_instance=.*|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_instance=OMS_SE_SRC_DB_INSTANCE|' EPC_TTM.properties";
 
 const OMS_SE_SRC_DB_USER_DISABLE =
   "sed -i 's|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_user=.*|#Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_user=.*|' EPC_TTM.properties";
@@ -106,6 +118,9 @@ const OMS_SE_TRG_DB_CONN_STRING =
 const MCSS_SE_EPCT_DP_DIR_DISABLE =
   "sed -i 's|^Profiles_Configuration/MCSS_SE/MCSS_SE.profile/mcss_se.EPCT_DP_DIR=DP_DMP_EPCT.*|#Profiles_Configuration/MCSS_SE/MCSS_SE.profile/mcss_se.EPCT_DP_DIR=DP_DMP_EPCT|' EPC_TTM.properties";
 
+const MCSS_SE_EPCT_DP_DIR =
+  "sed -i 's|^Profiles_Configuration/MCSS_SE/MCSS_SE.profile/mcss_se.EPCT_DP_DIR=.*|Profiles_Configuration/MCSS_SE/MCSS_SE.profile/mcss_se.EPCT_DP_DIR=MCSS_SE_EPCT_DP_DIR|' EPC_TTM.properties";
+
 const MCSS_SE_EPCT_DP_PATH =
   "sed -i 's|^#Profiles_Configuration/MCSS_SE/MCSS_SE.profile/mcss_se.EPCT_DP_PATH=.*|Profiles_Configuration/MCSS_SE/MCSS_SE.profile/mcss_se.EPCT_DP_PATH=MCSS_SE_EPCT_DP_PATH|' EPC_TTM.properties";
 
@@ -122,10 +137,10 @@ const MCSS_SE_SRC_DB_USER_DISABLE =
   "sed -i 's|Profiles_Configuration/MCSS_SE/MCSS_SE.profile/Source.ref.DB/mcss_se.src_ref_db_user=.*|#Profiles_Configuration/MCSS_SE/MCSS_SE.profile/Source.ref.DB/mcss_se.src_ref_db_user=.*|' EPC_TTM.properties";
 
 const MCSS_SE_SRC_DB_PASSWORD_DISABLE =
-  "sed -i 's|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_password=.*|#Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_password=.*|' EPC_TTM.properties";
+  "sed -i 's|Profiles_Configuration/MCSS_SE/MCSS_SE.profile/Source.ref.DB/mcss_se.src_ref_db_password=.*|#Profiles_Configuration/MCSS_SE/MCSS_SE.profile/Source.ref.DB/mcss_se.src_ref_db_password=.*|' EPC_TTM.properties";
 
 const MCSS_SE_SRC_DB_INSTANCE_DISABLE =
-  "sed -i 's|Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_instance=.*|#Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_instance=.*|' EPC_TTM.properties";
+  "sed -i 's|Profiles_Configuration/MCSS_SE/MCSS_SE.profile/Source.ref.DB/mcss_se.src_ref_db_instance=.*|#Profiles_Configuration/MCSS_SE/MCSS_SE.profile/Source.ref.DB/mcss_se.src_ref_db_instance=.*|' EPC_TTM.properties";
 
 const MCSS_SE_TRG_DB_CONN_STRING =
   "sed -i 's|^#Profiles_Configuration/MCSS_SE/MCSS_SE.profile/mcss_se.trg_db_conn_string=.*|Profiles_Configuration/MCSS_SE/MCSS_SE.profile/mcss_se.trg_db_conn_string=MCSS_SE_TRG_DB_CONN_STRING|' EPC_TTM.properties";
@@ -134,6 +149,9 @@ const MCSS_SE_TRG_DB_CONN_STRING =
 
 const ACPE_EPCT_DP_DIR_DISABLE =
   "sed -i 's|^Profiles_Configuration/ACPE/ACPE.profile/acpe.EPCT_DP_DIR=DP_DMP_EPCT.*|#Profiles_Configuration/ACPE/ACPE.profile/acpe.EPCT_DP_DIR=DP_DMP_EPCT|' EPC_TTM.properties";
+
+const ACPE_EPCT_DP_DIR =
+  "sed -i 's|^Profiles_Configuration/ACPE/ACPE.profile/acpe.EPCT_DP_DIR=.*|Profiles_Configuration/ACPE/ACPE.profile/acpe.EPCT_DP_DIR=ACPE_EPCT_DP_DIR|' EPC_TTM.properties";
 
 const ACPE_EPCT_DP_PATH =
   "sed -i 's|^#Profiles_Configuration/ACPE/ACPE.profile/acpe.EPCT_DP_PATH=.*|Profiles_Configuration/ACPE/ACPE.profile/acpe.EPCT_DP_PATH=ACPE_EPCT_DP_PATH|' EPC_TTM.properties";
@@ -162,12 +180,14 @@ const ACPE_TRG_DB_CONN_STRING =
 const CLIENTS_STRING = `sed -i 's|^export PRODUCTS_LIST="[^"]*"|export PRODUCTS_LIST="CLIENTS"|' MEC.profile.ksh`;
 
 module.exports = {
+  REMOTE_DB_USER,
   ABP_CLIENT_DISABLE,
   OMS_CLIENT_DISABLE,
   OMS_SE_CLIENT_DISABLE,
   MCSS_SE_CLIENT_DISABLE,
   ACPE_CLIENT_DISABLE,
   OVERRIDE_DATA_PUMP_FILE,
+  ABP_EPCT_DP_DIR,
   ABP_EPCT_DP_DIR_DISABLE,
   ABP_EPCT_DP_PATH,
   ABP_SRC_DB_USER,
@@ -178,6 +198,7 @@ module.exports = {
   ABP_SRC_DB_INSTANCE_DISABLE,
   ABP_TRG_DB_CONN_STRING,
   OMS_EPCT_DP_DIR_DISABLE,
+  OMS_EPCT_DP_DIR,
   OMS_EPCT_DP_PATH,
   OMS_SRC_DB_USER,
   OMS_SRC_DB_PASSWORD,
@@ -187,6 +208,7 @@ module.exports = {
   OMS_SRC_DB_INSTANCE_DISABLE,
   OMS_TRG_DB_CONN_STRING,
   OMS_SE_EPCT_DP_DIR_DISABLE,
+  OMS_SE_EPCT_DP_DIR,
   OMS_SE_EPCT_DP_PATH,
   OMS_SE_SRC_DB_USER,
   OMS_SE_SRC_DB_PASSWORD,
@@ -196,6 +218,7 @@ module.exports = {
   OMS_SE_SRC_DB_INSTANCE_DISABLE,
   OMS_SE_TRG_DB_CONN_STRING,
   MCSS_SE_EPCT_DP_DIR_DISABLE,
+  MCSS_SE_EPCT_DP_DIR,
   MCSS_SE_EPCT_DP_PATH,
   MCSS_SE_SRC_DB_USER,
   MCSS_SE_SRC_DB_PASSWORD,
@@ -205,6 +228,7 @@ module.exports = {
   MCSS_SE_SRC_DB_INSTANCE_DISABLE,
   MCSS_SE_TRG_DB_CONN_STRING,
   ACPE_EPCT_DP_DIR_DISABLE,
+  ACPE_EPCT_DP_DIR,
   ACPE_EPCT_DP_PATH,
   ACPE_SRC_DB_USER,
   ACPE_SRC_DB_PASSWORD,

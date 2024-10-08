@@ -1,45 +1,63 @@
+/* Container for the OMS SE component */
 .installation-oms_se-component-container {
-  margin-top: 25px;
-  background: #fff;
-  width: 100%;
-  border-radius: 5px;
-  padding: 10px 20px;
+  margin-top: 25px; /* Space above the component */
+  background-color: #fff; /* Set background color to white */
+  width: 100%; /* Full width of the parent container */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px 20px; /* Inner spacing */
 }
 
+/* Title styling for the OMS SE component */
 .installation-oms_se-component-title {
-  margin-bottom: 30px;
+  margin-bottom: 30px; /* Space below the title */
 }
 
+/* Main form container for the OMS SE component */
 .installation-oms_se-component-form {
-  display: flex;
-  flex-wrap: wrap;
+  display: flex; /* Use flexbox for layout */
+  flex-wrap: wrap; /* Allow items to wrap onto multiple lines */
+  justify-content: space-between; /* Space between items */
 }
 
+/* Individual input field container */
 .installation-oms_se-component-form-input {
-  margin: 20px 0 12px 0;
-  width: calc(100% / 2 - 20px);
-}
-.installation-oms_se-component-form-input-title {
-  color: black;
-  font-size: 16px;
-  font-weight: 600;
-  position: relative;
-}
-
-.installation-oms_se-component-form {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
+  margin: 20px 0 12px; /* Vertical spacing between inputs */
   width: calc(
-    100% - 200px
-  ); /* Adjust width to leave space for the button column */
+    50% - 20px
+  ); /* Each input takes up half the container width, minus margin */
 }
 
+/* Title styling for each input field */
+.installation-oms_se-component-form-input-title {
+  color: black; /* Text color for the title */
+  font-size: 16px; /* Font size */
+  font-weight: 600; /* Bold font weight */
+  position: relative; /* Allows for positioning of pseudo-elements if needed */
+}
+
+/* Styling for input fields within the form */
 .installation-oms_se-component-form-input input {
-  height: 45px;
-  width: 100%;
-  color: black;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 600;
+  height: 45px; /* Fixed height for input fields */
+  width: 100%; /* Full width of the container */
+  color: black; /* Text color inside the input */
+  padding: 15px; /* Inner spacing for input */
+  font-size: 16px; /* Font size for input text */
+  font-weight: 600; /* Bold font weight for input text */
+  border: 1px solid #ccc; /* Light gray border for input fields */
+  border-radius: 4px; /* Rounded corners for input fields */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for depth */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .installation-oms_se-component-form-input {
+    width: 100%; /* Full width for inputs on smaller screens */
+  }
+}
+
+/* Optional: Change border color on focus */
+.installation-oms_se-component-form-input input:focus {
+  border-color: #007bff; /* Change border color on focus */
+  outline: none; /* Remove default outline */
 }

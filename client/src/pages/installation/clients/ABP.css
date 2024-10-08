@@ -1,45 +1,54 @@
+/* Container for the ABP component */
 .installation-abp-component-container {
-  margin-top: 25px;
-  background: #fff;
-  width: 100%;
-  border-radius: 5px;
-  padding: 10px 20px;
+  margin-top: 25px; /* Spacing from the top */
+  background: #fff; /* White background for the container */
+  width: 100%; /* Full width of the parent */
+  border-radius: 5px; /* Rounded corners */
+  padding: 10px 20px; /* Inner spacing */
 }
 
+/* Title styling */
 .installation-abp-component-title {
-  margin-bottom: 30px;
+  margin-bottom: 30px; /* Spacing below the title */
 }
 
+/* Styling for the form, allows items to wrap */
 .installation-abp-component-form {
-  display: flex;
-  flex-wrap: wrap;
+  display: flex; /* Flexbox for layout */
+  flex-wrap: wrap; /* Allow items to wrap onto multiple lines */
+  justify-content: space-between; /* Space between form inputs */
 }
 
+/* Individual input field styling */
 .installation-abp-component-form-input {
-  margin: 20px 0 12px 0;
-  width: calc(100% / 2 - 20px);
+  margin: 20px 0 12px; /* Vertical margins for spacing */
+  width: calc(50% - 20px); /* Adjust width to fit two inputs per row */
 }
+
+/* Title styling for input fields */
 .installation-abp-component-form-input-title {
-  color: black;
-  font-size: 16px;
-  font-weight: 600;
-  position: relative;
+  color: black; /* Text color */
+  font-size: 16px; /* Font size for labels */
+  font-weight: 600; /* Bold font weight */
+  position: relative; /* Position relative for future adjustments (if needed) */
 }
 
-.installation-abp-component-form {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  width: calc(
-    100% - 200px
-  ); /* Adjust width to leave space for the button column */
-}
-
+/* Input field styling */
 .installation-abp-component-form-input input {
-  height: 45px;
-  width: 100%;
-  color: black;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 600;
+  height: 45px; /* Fixed height for input fields */
+  width: 100%; /* Full width of the container */
+  color: black; /* Text color */
+  padding: 15px; /* Inner padding for input text */
+  font-size: 16px; /* Font size for input text */
+  font-weight: 600; /* Bold font weight */
+  border: 1px solid #ccc; /* Optional: Add a border for visual distinction */
+  border-radius: 4px; /* Rounded corners for input fields */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for depth */
+  transition: border-color 0.2s; /* Transition for border color on focus */
+}
+
+/* Optional: Change border color on focus */
+.installation-abp-component-form-input input:focus {
+  border-color: #007bff; /* Change border color on focus */
+  outline: none; /* Remove default outline */
 }

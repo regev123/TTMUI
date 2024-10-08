@@ -178,6 +178,94 @@ router.get('/getReportEmail', async (req, res) => {
     });
   };
 
+  const runDBconfigurationCommand = async (command) => {
+    const config = await loadConfigFile();
+    return new Promise((resolve, reject) => {
+      let stdout = '';
+
+      const conn = new Client();
+      conn.on('ready', () => {
+        conn.exec(command, (err, stream) => {
+          if (err) {
+            reject(`Command execution failed: ${err}`);
+            return;
+          }
+
+          stream.on('data', (data) => {
+            stdout += data.toString(); // Collect stdout data
+          });
+
+          stream.on('close', (code, signal) => {
+            resolve(stdout.trim()); // Resolve with the output once the command finishes
+            conn.end(); // Close the SSH connection
+          });
+        });
+      });
+
+      conn.on('error', (err) => {
+        reject(`SSH connection error: ${err}`);
+      });
+
+      conn.connect({
+        host: config.configData.TTMhost,
+        port: config.configData.TTMport,
+        username: config.configData.TTMusername,
+        password: config.configData.TTMpassword,
+      });
+    });
+  };
+
+  // @route    POST /api/configuration/getDBDetails
+  // @desc     get object of all clients db details decrypted source and target
+  // @access   Public
+  router.post('/getDBDetails', async (req, res) => {
+    const config = await loadConfigFile(); // Load the configuration file
+    const { selected } = req.body; // Extract the clients data from the request body
+    const DBObject = {}; // Object to hold database details
+    const regex = /Decrypted Value:\s*(.+)/;
+
+    try {
+      const SOURCE_DB = `cd ${config.configData.TTMHome}packager/ && source ${config.configData.TTMHome}packager/MEC_sys_functions.ksh && export DIRBIN=${config.configData.TTMHome}packager/ && source ${config.configData.TTMHome}WORK_DIR/MEC.profile.ksh && source ${config.configData.TTMHome}WORK_DIR/MEC.profile.${selected}.ksh && mec_decrypt_db_connection $SRC_DB && echo "Decrypted Value: $DECRYPTED_VALUE"`;
+
+      const sourceRes = await runDBconfigurationCommand(SOURCE_DB);
+      const sourceDBValue = sourceRes.match(regex);
+
+      const TARGET_DB = `cd ${config.configData.TTMHome}packager/ && source ${config.configData.TTMHome}packager/MEC_sys_functions.ksh && export DIRBIN=${config.configData.TTMHome}packager/ && source ${config.configData.TTMHome}WORK_DIR/MEC.profile.ksh  && source ${config.configData.TTMHome}WORK_DIR/MEC.profile.${selected}.ksh && mec_decrypt_db_connection $TAR_DB_LIST && echo "Decrypted Value: $DECRYPTED_VALUE"`;
+
+      const targetRes = await runDBconfigurationCommand(TARGET_DB);
+      const targetDBValue = targetRes.match(regex);
+
+      DBObject[selected] = {
+        exists: true,
+        SRC_DB_CONN_STRING: sourceDBValue[1].trim(),
+        TRG_DB_CONN_STRING: targetDBValue[1].trim(),
+      };
+
+      res.status(200).json(DBObject); // Send the collected database details
+    } catch (error) {
+      console.error('Error fetching DB details:', error);
+      res.status(500).json({ error: 'Failed to fetch DB details' });
+    }
+  });
+
+  // @route    POST /api/configuration/getDBDetails
+  // @desc     get object of all clients db details decrypted source and target
+  // @access   Public
+  router.post('/setDBDetails', async (req, res) => {
+    const config = await loadConfigFile(); // Load the configuration file
+    const clients = req.body;
+    Object.entries(clients).forEach(async ([key, value]) => {
+      const SRC_DB = `( cd ${config.configData.TTMHome}packager/ && source ${config.configData.TTMHome}packager/MEC_sys_functions.ksh &&  export DIRBIN=${config.configData.TTMHome}packager/ && source ${config.configData.TTMHome}WORK_DIR/MEC.profile.ksh  && source ${config.configData.TTMHome}WORK_DIR/MEC.profile.${key}.ksh && mec_encrypt_db_connection $${key}_PROPERTIES "SRC_DB" "${value.SRC_DB_CONN_STRING}" && mec_replace_variable_value_in_profile $${key}_PROPERTIES "SRC_DB" "$SRC_DB" "$ENCRYPTED_DB_CONN")`;
+
+      await runDBconfigurationCommand(SRC_DB);
+
+      const TRG_DB = `( cd ${config.configData.TTMHome}packager/ && source ${config.configData.TTMHome}packager/MEC_sys_functions.ksh &&  export DIRBIN=${config.configData.TTMHome}packager/ && source ${config.configData.TTMHome}WORK_DIR/MEC.profile.ksh  && source ${config.configData.TTMHome}WORK_DIR/MEC.profile.${key}.ksh && mec_encrypt_db_connection $${key}_PROPERTIES "TAR_DB_LIST" "${value.TRG_DB_CONN_STRING}" && mec_replace_variable_value_in_profile $${key}_PROPERTIES "TAR_DB_LIST" "$TAR_DB_LIST" "$ENCRYPTED_DB_CONN")`;
+
+      await runDBconfigurationCommand(TRG_DB);
+    });
+    res.status(200).json('finished successfully'); // Return the email configuration
+  });
+
   // When SSH connection is ready, execute the commands
   conn.on('ready', async () => {
     try {

@@ -1,45 +1,56 @@
 .installation-oms-component-container {
-  margin-top: 25px;
-  background: #fff;
-  width: 100%;
-  border-radius: 5px;
-  padding: 10px 20px;
+  margin-top: 25px; /* Space above the component for separation from other elements */
+  background-color: #fff; /* Sets background color to white for a clean look */
+  width: 100%; /* Full width of the parent container */
+  border-radius: 5px; /* Rounded corners for a softer appearance */
+  padding: 10px 20px; /* Padding inside the container for spacing */
 }
 
 .installation-oms-component-title {
-  margin-bottom: 30px;
+  margin-bottom: 30px; /* Space below the title for separation from the form */
 }
 
 .installation-oms-component-form {
-  display: flex;
-  flex-wrap: wrap;
+  display: flex; /* Use flexbox layout for easy alignment */
+  flex-wrap: wrap; /* Allow items to wrap onto the next line if they overflow */
+  justify-content: space-between; /* Distributes space evenly between child elements */
 }
 
 .installation-oms-component-form-input {
-  margin: 20px 0 12px 0;
-  width: calc(100% / 2 - 20px);
-}
-.installation-oms-component-form-input-title {
-  color: black;
-  font-size: 16px;
-  font-weight: 600;
-  position: relative;
+  margin: 20px 0 12px; /* Vertical margin for spacing between inputs */
+  width: calc(
+    50% - 20px
+  ); /* Each input takes up half the width minus space for margins */
 }
 
-.installation-oms-component-form {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  width: calc(
-    100% - 200px
-  ); /* Adjust width to leave space for the button column */
+.installation-oms-component-form-input-title {
+  color: #000; /* Sets text color to black for visibility */
+  font-size: 16px; /* Font size for the input titles */
+  font-weight: 600; /* Bold font for emphasis */
 }
 
 .installation-oms-component-form-input input {
-  height: 45px;
-  width: 100%;
-  color: black;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 600;
+  height: 45px; /* Fixed height for consistency across input fields */
+  width: 100%; /* Full width to fill the parent container */
+  color: #000; /* Text color inside the input fields */
+  padding: 15px; /* Padding inside the input fields for better text readability */
+  font-size: 16px; /* Font size for the text inside the input fields */
+  font-weight: 600; /* Bold font for the input text */
+  border: 1px solid #ccc; /* Light gray border for inputs, improving visibility */
+  border-radius: 4px; /* Slightly rounded corners for a modern look */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for depth */
+  box-sizing: border-box; /* Ensures that padding and border are included in the total width and height */
+}
+
+@media (max-width: 768px) {
+  /* Responsive design: Adjusts styles for screens smaller than 768px */
+  .installation-oms-component-form-input {
+    width: 100%; /* Makes input fields full width on smaller screens for better usability */
+  }
+}
+
+/* Optional: Change border color on focus */
+.installation-oms-component-form-input input:focus {
+  border-color: #007bff; /* Change border color on focus */
+  outline: none; /* Remove default outline */
 }

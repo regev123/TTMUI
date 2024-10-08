@@ -41,6 +41,7 @@ const History = () => {
         api.post('/history/getPackagerLogList'),
         api.post('/history/getDeployerLogList'),
       ]);
+
       // Update state with sanitized and sorted logs
       setLogs({
         packager: sortLogs(
@@ -89,11 +90,16 @@ const History = () => {
             setSelected={setSelected} // Reset selected log when toggling
           />
         </div>
-        <Dropdown
-          selected={selected} // Current selected log
-          setSelected={setSelected} // Function to update selected log
-          options={logs[isPackager ? 'packager' : 'deployer']} // Show logs based on current toggle state
-        />
+        {logs[isPackager ? 'packager' : 'deployer'].length > 0 && (
+          <Dropdown
+            selected={selected} // Current selected log
+            setSelected={setSelected} // Function to update selected log
+            options={logs[isPackager ? 'packager' : 'deployer'].map(
+              (log) => log.fileName
+            )} // Show logs based on current toggle state
+          />
+        )}
+
         {alert && <span className='history-page-alert'>{alert}</span>}
         <div className='history-page-textarea-container'>
           <textarea

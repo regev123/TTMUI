@@ -1,91 +1,82 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import './OMS.css';
 
-const OMS = ({ OMSformData, setOMSformData }) => {
+const OMS = ({ OMSformData, setOMSFormData }) => {
+  // Destructure form data for easier access to individual form fields
   const {
-    OMS_EPCT_DP_PATH,
-    OMS_SRC_DB_USER,
-    OMS_SRC_DB_PASSWORD,
-    OMS_SRC_DB_INSTANCE,
-    OMS_TRG_DB_CONN_STRING,
+    ORACLE_DATA_PUMP_DIR,
+    ORACLE_DATA_PUMP_DIR_PATH,
+    SRC_DB_USER,
+    SRC_DB_PASSWORD,
+    SRC_DB_INSTANCE,
+    TRG_DB_CONN_STRING,
   } = OMSformData;
 
-  const onChange = (e) => {
-    const { name, value } = e.target;
-
-    setOMSformData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+  // Handle input change events for all form fields
+  // This function updates the formData state by setting the changed field's value
+  const onChange = ({ target: { name, value } }) => {
+    setOMSFormData({ [name]: value }); // Dynamically update the correct field by using its name
   };
 
   return (
     <div className='installation-oms-component-container'>
+      {/* Title for the OMS Configuration */}
       <div className='installation-oms-component-title'>
-        <h1>OMS configuration</h1>
+        <h1>OMS Configuration</h1>
       </div>
 
+      {/* Form section for input fields related to OMS */}
       <div className='installation-oms-component-form'>
-        <div className='installation-oms-component-form-input'>
-          <span className='installation-oms-component-form-input-title'>
-            OMS Path for the Oracle Data Pump directory
-          </span>
-          <input
-            value={OMS_EPCT_DP_PATH}
-            name='OMS_EPCT_DP_PATH'
-            onChange={(e) => onChange(e)}
-            type='text'
-            required
-          ></input>
-        </div>
-        <div className='installation-oms-component-form-input'>
-          <span className='installation-oms-component-form-input-title'>
-            OMS Source DB User
-          </span>
-          <input
-            value={OMS_SRC_DB_USER}
-            name='OMS_SRC_DB_USER'
-            onChange={(e) => onChange(e)}
-            type='text'
-            required
-          ></input>
-        </div>
-        <div className='installation-oms-component-form-input'>
-          <span className='installation-oms-component-form-input-title'>
-            OMS Source DB Password
-          </span>
-          <input
-            value={OMS_SRC_DB_PASSWORD}
-            name='OMS_SRC_DB_PASSWORD'
-            onChange={(e) => onChange(e)}
-            type='text'
-            required
-          ></input>
-        </div>
-        <div className='installation-oms-component-form-input'>
-          <span className='installation-oms-component-form-input-title'>
-            OMS Source DB Instance
-          </span>
-          <input
-            value={OMS_SRC_DB_INSTANCE}
-            name='OMS_SRC_DB_INSTANCE'
-            onChange={(e) => onChange(e)}
-            type='text'
-            required
-          ></input>
-        </div>
-        <div className='installation-oms-component-form-input'>
-          <span className='installation-oms-component-form-input-title'>
-            OMS Target DB Connection String
-          </span>
-          <input
-            value={OMS_TRG_DB_CONN_STRING}
-            name='OMS_TRG_DB_CONN_STRING'
-            onChange={(e) => onChange(e)}
-            type='text'
-            required
-          ></input>
-        </div>
+        {/* Map over an array of field configurations to reduce repeated JSX */}
+        {[
+          {
+            label: 'Oracle Data Pump Directory', // Display label for the input field
+            value: ORACLE_DATA_PUMP_DIR, // Corresponding value from OMSformData
+            name: 'ORACLE_DATA_PUMP_DIR', // Name attribute used for state updating
+          },
+          {
+            label: 'Oracle Data Pump Directory Path',
+            value: ORACLE_DATA_PUMP_DIR_PATH,
+            name: 'ORACLE_DATA_PUMP_DIR_PATH',
+          },
+          {
+            label: 'Source DB User',
+            value: SRC_DB_USER,
+            name: 'SRC_DB_USER',
+          },
+          {
+            label: 'Source DB Password',
+            value: SRC_DB_PASSWORD,
+            name: 'SRC_DB_PASSWORD',
+          },
+          {
+            label: 'Source DB Instance',
+            value: SRC_DB_INSTANCE,
+            name: 'SRC_DB_INSTANCE',
+          },
+          {
+            label: 'Target DB Connection String',
+            value: TRG_DB_CONN_STRING,
+            name: 'TRG_DB_CONN_STRING',
+            placeholder: 'String structure DB_USER/DB_PASSWORD@DB_INSTANCE',
+          },
+        ].map((field, index) => (
+          <div className='installation-oms-component-form-input' key={index}>
+            {/* Display label for the input field */}
+            <span className='installation-oms-component-form-input-title'>
+              {`OMS ${field.label} *`} {/* Required field indicator (*) */}
+            </span>
+            {/* Render the input field */}
+            <input
+              value={field.value} // Bind input value from formData
+              name={field.name} // Use the field's name to update the correct formData value
+              onChange={onChange} // Call onChange handler when user types in input
+              type='text' // Set input type as text
+              placeholder={field.placeholder ? field.placeholder : ''}
+              required // Mark input as required
+            />
+          </div>
+        ))}
       </div>
     </div>
   );

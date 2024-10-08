@@ -1,45 +1,61 @@
+/* Container for the MCSS SE component */
 .installation-mcss_se-component-container {
-  margin-top: 25px;
-  background: #fff;
-  width: 100%;
-  border-radius: 5px;
-  padding: 10px 20px;
+  margin-top: 25px; /* Space above the component */
+  background-color: #fff; /* Use background-color for clarity */
+  width: 100%; /* Full width of the parent */
+  border-radius: 5px; /* Rounded corners for aesthetics */
+  padding: 10px 20px; /* Inner spacing around the content */
 }
 
+/* Title style for the MCSS SE component */
 .installation-mcss_se-component-title {
-  margin-bottom: 30px;
+  margin-bottom: 30px; /* Space below the title */
 }
 
+/* Main form wrapper with flexbox for layout */
 .installation-mcss_se-component-form {
-  display: flex;
-  flex-wrap: wrap;
+  display: flex; /* Use flexbox for alignment */
+  flex-wrap: wrap; /* Allow items to wrap to the next line */
+  justify-content: space-between; /* Distribute space between items */
 }
 
+/* Input field container */
 .installation-mcss_se-component-form-input {
-  margin: 20px 0 12px 0;
-  width: calc(100% / 2 - 20px);
+  margin: 20px 0 12px; /* Vertical spacing for each input */
+  width: calc(50% - 20px); /* Two inputs per row, accounting for margin */
 }
+
+/* Title style for input fields */
 .installation-mcss_se-component-form-input-title {
-  color: black;
-  font-size: 16px;
-  font-weight: 600;
-  position: relative;
+  color: #000; /* Consistent black color */
+  font-size: 16px; /* Standard font size */
+  font-weight: 600; /* Bold font for emphasis */
+  position: relative; /* Allows for future positioning adjustments if needed */
 }
 
-.installation-mcss_se-component-form {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  width: calc(
-    100% - 200px
-  ); /* Adjust width to leave space for the button column */
-}
-
+/* Input field styling */
 .installation-mcss_se-component-form-input input {
-  height: 45px;
-  width: 100%;
-  color: black;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 600;
+  height: 45px; /* Fixed height for input fields */
+  width: 100%; /* Full width of the container */
+  color: #000; /* Consistent black text color */
+  padding: 15px; /* Inner spacing for better user experience */
+  font-size: 16px; /* Standard font size */
+  font-weight: 600; /* Bold font for input text */
+  border: 1px solid #ccc; /* Light gray border for input fields */
+  border-radius: 4px; /* Slightly rounded corners for inputs */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for depth */
+  box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+/* Media query for responsive design */
+@media (max-width: 768px) {
+  .installation-mcss_se-component-form-input {
+    width: 100%; /* Full width for inputs on smaller screens */
+  }
+}
+
+/* Optional: Change border color on focus */
+.installation-mcss_se-component-form-input input:focus {
+  border-color: #007bff; /* Change border color on focus */
+  outline: none; /* Remove default outline */
 }

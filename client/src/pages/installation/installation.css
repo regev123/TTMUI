@@ -1,98 +1,151 @@
+/* Container for the entire installation page */
 .installation-page-container {
-  box-sizing: border-box;
-  outline: none;
-  border: none;
-  text-decoration: none;
-  text-transform: capitalize;
-  transition: 0.2s linear;
-  background: linear-gradient(45deg, blueviolet, lightgreen);
-  padding: 15px 9%;
-  height: 100vh;
-  overflow: auto; /* hides any overflowing content */
+  box-sizing: border-box; /* Include padding/border in width/height calculations */
+  padding: 15px 9%; /* Padding around the container for responsive layout */
+  height: 100vh; /* Full viewport height for layout consistency */
+  overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  background: linear-gradient(
+    45deg,
+    blueviolet,
+    lightgreen
+  ); /* Diagonal gradient background */
+  transition: background 0.2s linear; /* Smooth background transition for interactions */
 }
+
+/* Container for client selection and forms */
 .installation-page-clients-container {
-  margin-top: 25px;
-  background: #fff;
-  width: 100%;
-  border-radius: 5px;
-  padding: 10px 20px;
+  margin-top: 25px; /* Space above the container */
+  background-color: #fff; /* White background for contrast */
+  border-radius: 5px; /* Rounded corners for visual appeal */
+  padding: 10px 20px; /* Padding inside the container */
+  width: 100%; /* Full container width */
 }
 
+/* Title for each section inside the client container */
 .installation-page-clients-title {
-  margin-bottom: 30px;
+  margin-bottom: 30px; /* Space below the title for readability */
 }
 
+/* Label styles for checkboxes */
 .installation-page-clients-checkbox label {
-  color: black;
-  font-size: 16px;
-  font-weight: 600;
-  margin-right: 20px;
+  color: #000; /* Set label text color */
+  font-size: 16px; /* Font size for better readability */
+  font-weight: 600; /* Bold text for emphasis */
+  margin-right: 20px; /* Space between checkboxes */
 }
 
+/* Styles for the checkbox input */
 .installation-page-clients-checkbox input {
-  margin-right: 10px;
+  margin-right: 10px; /* Space between checkbox and label */
+  margin-top: 20px; /* Space above checkbox for alignment */
 }
 
+/* Form container with flexbox for a responsive layout */
 .configuration-page-box-form {
-  display: flex;
-  flex-wrap: wrap;
+  display: flex; /* Flexbox for flexible layout */
+  flex-wrap: wrap; /* Allow form fields to wrap */
+  gap: 15px; /* Add gap between form fields for better spacing */
 }
 
+/* User details section inside the form */
 .configuration-page-box-user-details {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  width: calc(
-    100% - 200px
-  ); /* Adjust width to leave space for the button column */
+  flex-wrap: wrap; /* Wrap elements when necessary */
+  justify-content: space-between; /* Spread elements across available space */
+  width: calc(100% - 200px); /* Reserve space for other form elements */
 }
 
+/* Form input field layout */
 .configuration-page-box-input {
-  margin: 20px 0 12px 0;
-  width: calc(100% / 2 - 20px);
+  margin: 20px 0 12px; /* Margin around input fields */
+  width: calc(50% - 20px); /* Responsive width for two columns */
 }
+
+/* Title/label for input fields */
 .configuration-page-box-input-title {
-  color: black;
-  position: relative;
+  color: #000; /* Text color for labels */
+  font-size: 16px; /* Font size for readability */
+  position: relative; /* Position to allow further customizations */
 }
 
+/* Input field styles */
 .configuration-page-box-input input {
-  height: 45px;
-  width: 100%;
-  color: black;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 600;
+  height: 45px; /* Fixed height for inputs */
+  width: 100%; /* Full width of container */
+  padding: 15px; /* Inner padding for better UX */
+  font-size: 16px; /* Font size for input text */
+  font-weight: 600; /* Bold text for visibility */
+  color: #000; /* Text color */
+  border: 1px solid #ccc; /* Border for better input visibility */
+  border-radius: 4px; /* Rounded corners for input fields */
+  transition: border-color 0.2s ease-in-out; /* Smooth transition for interactions */
 }
 
+/* Input focus state for improved UX */
+.configuration-page-box-input input:focus {
+  border-color: #007bff; /* Change border color when focused */
+  outline: none; /* Remove default outline */
+}
+
+/* Container for the submit button */
 .configuration-page-box-submit {
   display: flex;
-  align-items: flex-end; /* Align the button to the bottom of the form */
+  align-items: flex-end; /* Align button to the bottom of its container */
   justify-content: center; /* Center the button horizontally */
+  width: 100%; /* Full width for button container */
 }
 
+/* Submit button styling */
 .configuration-page-box-input-button {
-  margin-top: 10px;
-  display: inline-block;
-  background: #140202;
-  color: #fff;
-  font-size: 17px;
-  border: none;
-  border-radius: 5px;
-  padding: 8px 25px;
-  cursor: pointer;
-  width: 100%;
+  margin-top: 10px; /* Space above the button */
+  background-color: #140202; /* Dark button background */
+  color: #fff; /* White button text */
+  font-size: 17px; /* Button text size */
+  border: none; /* Remove default borders */
+  border-radius: 5px; /* Rounded button corners */
+  padding: 8px 25px; /* Padding for better button aesthetics */
+  cursor: pointer; /* Pointer cursor on hover */
+  width: 100%; /* Full-width button */
+  transition: background-color 0.2s ease; /* Smooth background transition */
 }
 
+/* Disabled state for submit button */
 .configuration-page-box-input-button-disabled {
-  margin-top: 10px;
-  display: inline-block;
-  background: #140202;
-  color: #fff;
-  font-size: 17px;
-  border: none;
-  border-radius: 5px;
-  padding: 8px 25px;
-  cursor: not-allowed;
-  width: 100%;
+  background-color: #7a7a7a; /* Gray background for disabled state */
+  cursor: not-allowed; /* Show not-allowed cursor */
+  pointer-events: none; /* Disable button interactions */
+}
+
+/* Input field specifically for remote DB user */
+.installation-page-remote-db-user-input {
+  margin: 20px 0 12px; /* Space around the input */
+  width: calc(25% - 20px); /* Responsive width for remote DB user input */
+}
+
+/* Title/label for the remote DB user input */
+.installation-page-remote-db-user-input-title {
+  color: #000; /* Text color */
+  font-size: 16px; /* Font size for readability */
+  font-weight: 600; /* Bold text */
+  position: relative; /* Position for alignment */
+}
+
+/* Input field for remote DB user */
+.installation-page-remote-db-user-input input {
+  height: 45px; /* Fixed input height */
+  width: 100%; /* Full width of container */
+  padding: 15px; /* Inner padding */
+  font-size: 16px; /* Font size for text */
+  font-weight: 600; /* Bold text */
+  color: #000; /* Text color */
+  border: 1px solid #ccc; /* Border for better visual input distinction */
+  border-radius: 4px; /* Rounded input corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for depth */
+  transition: border-color 0.2s ease-in-out; /* Smooth border transition */
+}
+
+/* Optional: Change border color on focus */
+.installation-page-remote-db-user-input input:focus {
+  border-color: #007bff; /* Change border color on focus */
+  outline: none; /* Remove default outline */
 }

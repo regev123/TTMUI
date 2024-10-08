@@ -17,22 +17,19 @@ app.use(express.static(path.join(__dirname, 'client/build/')));
 // extended: false means it uses the classic body-parser library
 app.use(express.json({ extended: false }));
 
-// Define API routes and associate them with corresponding route handlers
-const apiRoutes = [
-  'packager',
-  'deployer',
-  'configuration',
-  'installation',
-  'util',
-  'history',
-  'environmentValidation',
-  'validation',
-];
-
 // Register API routes in a loop for cleaner and more maintainable code
-apiRoutes.forEach((route) => {
-  app.use(`/api/${route}`, require(`./routes/api/${route}`));
-});
+
+app.use('/api/packager', require('./routes/api/packager'));
+app.use('/api/deployer', require('./routes/api/deployer'));
+app.use('/api/configuration', require('./routes/api/configuration'));
+app.use('/api/installation', require('./routes/api/installation'));
+app.use('/api/util', require('./routes/api/util'));
+app.use('/api/history', require('./routes/api/history'));
+app.use(
+  '/api/environmentValidation',
+  require('./routes/api/environmentValidation')
+);
+app.use('/api/validation', require('./routes/api/validation'));
 
 // Catch-all handler to serve the React app's index.html for any route not explicitly defined above
 // This enables the React app to handle frontend routing via its client-side router
@@ -45,6 +42,6 @@ app.listen(port, hostname, () => {
   console.log(`Server started on port ${port}`);
 
   // for Production: Open the app in the default browser after the server starts
-  // const url = `http://localhost:${port}/`;
-  // exec(`start ${url}`);
+  //const url = `http://localhost:${port}/`;
+  //exec(`start ${url}`);
 });

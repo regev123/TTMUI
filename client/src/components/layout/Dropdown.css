@@ -47,6 +47,7 @@
   font-weight: 500; /* Medium weight text */
   border: 2px solid transparent; /* Border for layout */
   border-radius: 10px; /* Rounded corners */
+  z-index: 1002; /* On top of everything */
 }
 
 /* Style for each item in the dropdown */

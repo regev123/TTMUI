@@ -1,115 +1,146 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import './installation.css';
-import api from '../../utils/api';
-import ABP from './clients/ABP';
+import api from '../../utils/api'; // Utility to handle API calls
+import ABP from './clients/ABP'; // Client-specific forms
 import OMS from './clients/OMS';
 import OMS_SE from './clients/OMS_SE';
 import MCSS_SE from './clients/MCSS_SE';
 import ACPE from './clients/ACPE';
 
-const _ = require('lodash');
-
 const Installation = () => {
-  const [ABPchecked, setABPchecked] = React.useState(false);
-  const [OMSchecked, setOMSchecked] = React.useState(false);
-  const [OMSSEchecked, setOMSSEchecked] = React.useState(false);
-  const [MCSSSEchecked, setMCSSSEchecked] = React.useState(false);
-  const [ACPEchecked, setACPEchecked] = React.useState(false);
-  const [installing, setInstalling] = React.useState(false);
-  const [requestStatus, setRequestStatus] = React.useState(false);
-
-  const [ACPEformData, setACPEFormData] = useState({
-    ACPE_EPCT_DP_PATH: '',
-    ACPE_SRC_DB_USER: '',
-    ACPE_SRC_DB_PASSWORD: '',
-    ACPE_SRC_DB_INSTANCE: '',
-    ACPE_TRG_DB_CONN_STRING: '',
+  // State to track which clients are selected (true/false)
+  const [clientChecks, setClientChecks] = useState({
+    ABP: false,
+    OMS: false,
+    OMS_SE: false,
+    MCSS_SE: false,
+    ACPE: false,
   });
 
-  const [ABPformData, setABPFormData] = useState({
-    ABP_EPCT_DP_PATH: '',
-    ABP_SRC_DB_USER: '',
-    ABP_SRC_DB_PASSWORD: '',
-    ABP_SRC_DB_INSTANCE: '',
-    ABP_TRG_DB_CONN_STRING: '',
+  // State for tracking the installation process (loading state)
+  const [installing, setInstalling] = useState(false);
+  // State for installation status messages
+  const [requestStatus, setRequestStatus] = useState('');
+  // State to track if overriding data pump file should be enabled
+  const [overrideDataPumpFile, setOverrideDataPumpFile] = useState(true);
+  // State for the remote DB user, initialized with default value
+  const [remoteDBUser, setRemoteDBUser] = useState('oradp');
+
+  // Initial form structure shared by all clients
+  const initialFormData = {
+    ORACLE_DATA_PUMP_DIR: 'DP_DMP_EPCT',
+    ORACLE_DATA_PUMP_DIR_PATH: '',
+    SRC_DB_USER: '',
+    SRC_DB_PASSWORD: '',
+    SRC_DB_INSTANCE: '',
+    TRG_DB_CONN_STRING: '',
+  };
+
+  // State to manage form data for each client. Each client gets its own copy of initialFormData.
+  const [formData, setFormData] = useState({
+    ABP: { ...initialFormData },
+    OMS: { ...initialFormData },
+    OMS_SE: { ...initialFormData },
+    MCSS_SE: { ...initialFormData },
+    ACPE: { ...initialFormData },
   });
 
-  const [MCSSSEformData, setMCSSSEformData] = useState({
-    MCSS_SE_EPCT_DP_PATH: '',
-    MCSS_SE_SRC_DB_USER: '',
-    MCSS_SE_SRC_DB_PASSWORD: '',
-    MCSS_SE_SRC_DB_INSTANCE: '',
-    MCSS_SE_TRG_DB_CONN_STRING: '',
-  });
+  // Toggle the check status for a specific client
+  const handleClientToggle = (client) => {
+    setClientChecks((prev) => ({
+      ...prev,
+      [client]: !prev[client], // Flip the selected client value (true/false)
+    }));
+  };
 
-  const [OMSSEformData, setOMSSEformData] = useState({
-    OMS_SE_EPCT_DP_PATH: '',
-    OMS_SE_SRC_DB_USER: '',
-    OMS_SE_SRC_DB_PASSWORD: '',
-    OMS_SE_SRC_DB_INSTANCE: '',
-    OMS_SE_TRG_DB_CONN_STRING: '',
-  });
+  // Update the form data for a specific client dynamically
+  const handleFormChange = (client, updatedData) => {
+    setFormData((prev) => ({
+      ...prev,
+      [client]: { ...prev[client], ...updatedData }, // Merge updated data into the specific client's form
+    }));
+  };
 
-  const [OMSformData, setOMSformData] = useState({
-    OMS_EPCT_DP_PATH: '',
-    OMS_SRC_DB_USER: '',
-    OMS_SRC_DB_PASSWORD: '',
-    OMS_SRC_DB_INSTANCE: '',
-    OMS_TRG_DB_CONN_STRING: '',
-  });
+  // Validate that all form fields for a specific client are filled in
+  const validateClientForm = (clientData) => {
+    console.log(formData); // Log current form data for debugging
+    return Object.values(clientData).every((value) => value !== ''); // Ensure no form fields are empty
+  };
 
-  const handleChange = (client) => {
-    switch (client) {
-      case 'ABP':
-        setABPchecked(!ABPchecked);
-        break;
-      case 'OMS':
-        setOMSchecked(!OMSchecked);
-        break;
-      case 'OMS_SE':
-        setOMSSEchecked(!OMSSEchecked);
-        break;
-      case 'MCSS_SE':
-        setMCSSSEchecked(!MCSSSEchecked);
-        break;
-      case 'ACPE':
-        setACPEchecked(!ACPEchecked);
-        break;
+  function validateUserPasswordInstance(input) {
+    const pattern = /^[A-Za-z0-9_]+\/[A-Za-z0-9_]+@[A-Za-z0-9_]+$/;
+    return pattern.test(input);
+  }
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission behavior
+
+    // Validation: Ensure remoteDBUser is not empty
+    if (!remoteDBUser) {
+      alert('Remote DB User is required.');
+      return; // Exit early if validation fails
+    }
+
+    const clients = []; // Array to collect selected clients
+
+    // Loop through all clients, validate forms for selected ones
+    for (const client of Object.keys(clientChecks)) {
+      //Remove all Whitespace from the variables
+      if (clientChecks[client]) {
+        Object.entries(formData[client]).forEach(([key, value]) => {
+          formData[client][key] = value.replace(/\s+/g, '');
+        });
+        // If the client is selected
+        if (!validateClientForm(formData[client])) {
+          // Validate the form
+          alert(`All ${client} fields are required.`); // Show error if validation fails
+          return; // Exit early if form validation fails
+        }
+
+        if (
+          !validateUserPasswordInstance(formData[client].TRG_DB_CONN_STRING)
+        ) {
+          alert(
+            `${client} Target DB Connection String must be in this structure({DB_USER}/{DB_PASSWORD}@{DB_INSTANCE})`
+          );
+          return;
+        }
+        clients.push(client); // Add validated client to the list
+      }
+    }
+
+    // Prepare request payload with all necessary data
+    const body = {
+      overrideDataPumpFile,
+      remoteDBUser,
+      clients,
+      formData,
+    };
+
+    setInstalling(true); // Set installing state to true while the request is in progress
+    try {
+      const res = await api.post('/installation/install', body); // Send POST request to server
+      // Update status based on the response
+      setRequestStatus(
+        res.status === 200
+          ? 'Installation finished successfully'
+          : 'Installation failed'
+      );
+    } catch (error) {
+      setRequestStatus('Installation failed'); // Handle error response
+    } finally {
+      setInstalling(false); // Reset installing state after request is complete
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setInstalling(true);
-    const clients = [];
-    const clientsFormData = {};
-    if (ABPchecked) {
-      clients.push('ABP');
-      _.merge(clientsFormData, ABPformData);
-    }
-    if (OMSchecked) {
-      clients.push('OMS');
-      _.merge(clientsFormData, OMSformData);
-    }
-    if (OMSSEchecked) {
-      clients.push('OMS_SE');
-      _.merge(clientsFormData, OMSSEformData);
-    }
-    if (MCSSSEchecked) {
-      clients.push('MCSS_SE');
-      _.merge(clientsFormData, MCSSSEformData);
-    }
-    if (ACPEchecked) {
-      clients.push('ACPE');
-      _.merge(clientsFormData, ACPEformData);
-    }
-    const body = { clients, clientsFormData };
-
-    const res = await api.post('/installation/install', body);
-    setInstalling(false);
-    if (res.status === 200)
-      setRequestStatus('Installation finished succefully');
-    if (res.status === 500) setRequestStatus('Installation failed');
+  // Map client names to their corresponding components
+  const clientComponents = {
+    ABP: ABP,
+    OMS: OMS,
+    OMS_SE: OMS_SE,
+    MCSS_SE: MCSS_SE,
+    ACPE: ACPE,
   };
 
   return (
@@ -117,91 +148,78 @@ const Installation = () => {
       <div className='installation-page-container'>
         <div className='installation-page-clients-container'>
           <div className='installation-page-clients-title'>
-            <h1>Choose clients</h1>
-            <h1>{requestStatus}</h1>
+            <h1>Environment Configuration</h1>
             <div className='installation-page-clients-checkbox'>
               <label>
                 <input
                   type='checkbox'
-                  checked={ABPchecked}
-                  onChange={() => handleChange('ABP')}
+                  checked={overrideDataPumpFile}
+                  onChange={() =>
+                    setOverrideDataPumpFile(!overrideDataPumpFile)
+                  } // Toggle override data pump file setting
                 />
-                ABP
+                Override data pump file
               </label>
-              <label>
-                <input
-                  type='checkbox'
-                  checked={OMSchecked}
-                  onChange={() => handleChange('OMS')}
-                />
-                OMS
-              </label>
-              <label>
-                <input
-                  type='checkbox'
-                  checked={OMSSEchecked}
-                  onChange={() => handleChange('OMS_SE')}
-                />
-                OMS_SE
-              </label>
-              <label>
-                <input
-                  type='checkbox'
-                  checked={MCSSSEchecked}
-                  onChange={() => handleChange('MCSS_SE')}
-                />
-                MCSS_SE
-              </label>
-              <label>
-                <input
-                  type='checkbox'
-                  checked={ACPEchecked}
-                  onChange={() => handleChange('ACPE')}
-                />
-                ACPE
-              </label>
+            </div>
+            <div className='installation-page-remote-db-user-input'>
+              <span className='installation-page-remote-db-user-input-title'>
+                Remote DB User *
+              </span>
+              <input
+                value={remoteDBUser}
+                name='remoteDBUser'
+                onChange={(e) => setRemoteDBUser(e.target.value)} // Update remote DB user state
+                type='text'
+                required
+              />
             </div>
           </div>
         </div>
-        {ABPchecked ? (
-          <ABP ABPformData={ABPformData} setABPFormData={setABPFormData} />
-        ) : null}
-        {OMSchecked ? (
-          <OMS OMSformData={OMSformData} setOMSformData={setOMSformData} />
-        ) : null}
-        {OMSSEchecked ? (
-          <OMS_SE
-            OMSSEformData={OMSSEformData}
-            setOMSSEformData={setOMSSEformData}
-          />
-        ) : null}
-        {MCSSSEchecked ? (
-          <MCSS_SE
-            MCSSSEformData={MCSSSEformData}
-            setMCSSSEformData={setMCSSSEformData}
-          />
-        ) : null}
-        {ACPEchecked ? (
-          <ACPE ACPEformData={ACPEformData} setACPEFormData={setACPEFormData} />
-        ) : null}
-        {(ABPchecked ||
-          OMSchecked ||
-          OMSSEchecked ||
-          ACPEchecked ||
-          MCSSSEchecked) && (
+
+        <div className='installation-page-clients-container'>
+          <div className='installation-page-clients-title'>
+            <h1>Choose clients</h1>
+            <h1>{requestStatus}</h1> {/* Show installation status */}
+            <div className='installation-page-clients-checkbox'>
+              {Object.keys(clientChecks).map((client) => (
+                <label key={client}>
+                  <input
+                    type='checkbox'
+                    checked={clientChecks[client]} // Check if the client is selected
+                    onChange={() => handleClientToggle(client)} // Toggle client selection
+                  />
+                  {client}
+                </label>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {Object.keys(clientChecks).map((client) =>
+          clientChecks[client]
+            ? React.createElement(clientComponents[client], {
+                key: client,
+                [`${client}formData`]: formData[client], // Pass form data to child component
+                [`set${client}FormData`]: (updatedData) =>
+                  handleFormChange(client, updatedData), // Pass state update handler to child
+              })
+            : null
+        )}
+
+        {/* Show submit button only if at least one client is selected */}
+        {Object.values(clientChecks).some((checked) => checked) && (
           <div className='configuration-page-box-submit'>
             <button
-              onClick={(e) => {
-                handleSubmit(e);
-              }}
+              onClick={handleSubmit} // Handle form submission
               className={
                 installing
                   ? 'configuration-page-box-input-button-disabled'
                   : 'configuration-page-box-input-button'
               }
-              disabled={installing}
+              disabled={installing} // Disable button during installation process
             >
-              {installing ? 'installing...' : 'install'}
+              {installing ? 'Installing...' : 'Install'}{' '}
+              {/* Show loading state */}
             </button>
           </div>
         )}

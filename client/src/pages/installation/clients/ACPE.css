@@ -1,45 +1,54 @@
+/* Container for the entire ACPE configuration component */
 .installation-acpe-component-container {
-  margin-top: 25px;
-  background: #fff;
-  width: 100%;
-  border-radius: 5px;
-  padding: 10px 20px;
+  margin-top: 25px; /* Space above the container */
+  background-color: #fff; /* White background for visibility */
+  width: 100%; /* Full width of the parent element */
+  border-radius: 5px; /* Rounded corners for a softer appearance */
+  padding: 10px 20px; /* Padding inside the container */
 }
 
+/* Title style for the ACPE configuration section */
 .installation-acpe-component-title {
-  margin-bottom: 30px;
+  margin-bottom: 30px; /* Space below the title */
 }
 
+/* Main form container using flexbox for layout */
 .installation-acpe-component-form {
-  display: flex;
-  flex-wrap: wrap;
+  display: flex; /* Enables flexbox layout */
+  flex-wrap: wrap; /* Allows items to wrap onto the next line */
+  justify-content: space-between; /* Space between form items */
+  width: 100%; /* Full width to avoid issues with child elements */
 }
 
+/* Individual input field container */
 .installation-acpe-component-form-input {
-  margin: 20px 0 12px 0;
-  width: calc(100% / 2 - 20px);
+  margin: 20px 0 12px; /* Margin for spacing between inputs */
+  width: calc(50% - 20px); /* Two inputs per row with space between */
 }
+
+/* Title for each input field */
 .installation-acpe-component-form-input-title {
-  color: black;
-  font-size: 16px;
-  font-weight: 600;
-  position: relative;
+  color: #000; /* Consistent black color for text */
+  font-size: 16px; /* Standard font size */
+  font-weight: 600; /* Bold text for emphasis */
+  position: relative; /* Positioned for potential future styling */
 }
 
-.installation-acpe-component-form {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  width: calc(
-    100% - 200px
-  ); /* Adjust width to leave space for the button column */
-}
-
+/* Input field styling */
 .installation-acpe-component-form-input input {
-  height: 45px;
-  width: 100%;
-  color: black;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: 600;
+  height: 45px; /* Consistent height for inputs */
+  width: 100%; /* Full width of the container */
+  color: #000; /* Consistent black color for text */
+  padding: 15px; /* Padding for comfort when typing */
+  font-size: 16px; /* Standard font size */
+  font-weight: 600; /* Bold text for emphasis */
+  border: 1px solid #ccc; /* Light gray border for visibility */
+  border-radius: 4px; /* Slightly rounded corners for inputs */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: subtle shadow for depth */
+  box-sizing: border-box; /* Ensures padding and border are included in the width */
+}
+/* Optional: Change border color on focus */
+.installation-acpe-component-form-input input:focus {
+  border-color: #007bff; /* Change border color on focus */
+  outline: none; /* Remove default outline */
 }

@@ -1,508 +1,111 @@
-const express = require('express');
-const router = express.Router();
-const config = require('config');
-const { Client } = require('ssh2');
-const loadConfigFile = require('./getConfigurationFile');
-const {
-  addToExecString,
-  addDisableToExecString,
-} = require('../../utils/addToExecString');
-const {
-  ABP_CLIENT_DISABLE,
-  OMS_CLIENT_DISABLE,
-  OMS_SE_CLIENT_DISABLE,
-  MCSS_SE_CLIENT_DISABLE,
-  ACPE_CLIENT_DISABLE,
-  OVERRIDE_DATA_PUMP_FILE,
-  ABP_EPCT_DP_DIR_DISABLE,
-  ABP_EPCT_DP_PATH,
-  ABP_SRC_DB_USER,
-  ABP_SRC_DB_PASSWORD,
-  ABP_SRC_DB_INSTANCE,
-  ABP_SRC_DB_USER_DISABLE,
-  ABP_SRC_DB_PASSWORD_DISABLE,
-  ABP_SRC_DB_INSTANCE_DISABLE,
-  ABP_TRG_DB_CONN_STRING,
-  OMS_EPCT_DP_DIR_DISABLE,
-  OMS_EPCT_DP_PATH,
-  OMS_SRC_DB_USER,
-  OMS_SRC_DB_PASSWORD,
-  OMS_SRC_DB_INSTANCE,
-  OMS_SRC_DB_USER_DISABLE,
-  OMS_SRC_DB_PASSWORD_DISABLE,
-  OMS_SRC_DB_INSTANCE_DISABLE,
-  OMS_TRG_DB_CONN_STRING,
-  OMS_SE_EPCT_DP_DIR_DISABLE,
-  OMS_SE_EPCT_DP_PATH,
-  OMS_SE_SRC_DB_USER,
-  OMS_SE_SRC_DB_PASSWORD,
-  OMS_SE_SRC_DB_INSTANCE,
-  OMS_SE_SRC_DB_USER_DISABLE,
-  OMS_SE_SRC_DB_PASSWORD_DISABLE,
-  OMS_SE_SRC_DB_INSTANCE_DISABLE,
-  OMS_SE_TRG_DB_CONN_STRING,
-  MCSS_SE_EPCT_DP_DIR_DISABLE,
-  MCSS_SE_EPCT_DP_PATH,
-  MCSS_SE_SRC_DB_USER,
-  MCSS_SE_SRC_DB_PASSWORD,
-  MCSS_SE_SRC_DB_INSTANCE,
-  MCSS_SE_SRC_DB_USER_DISABLE,
-  MCSS_SE_SRC_DB_PASSWORD_DISABLE,
-  MCSS_SE_SRC_DB_INSTANCE_DISABLE,
-  MCSS_SE_TRG_DB_CONN_STRING,
-  ACPE_EPCT_DP_DIR_DISABLE,
-  ACPE_EPCT_DP_PATH,
-  ACPE_SRC_DB_USER,
-  ACPE_SRC_DB_PASSWORD,
-  ACPE_SRC_DB_INSTANCE,
-  ACPE_SRC_DB_USER_DISABLE,
-  ACPE_SRC_DB_PASSWORD_DISABLE,
-  ACPE_SRC_DB_INSTANCE_DISABLE,
-  ACPE_TRG_DB_CONN_STRING,
-} = require('../../installation consts/installationConsts');
+const express = require('express'); // Importing Express framework
+const router = express.Router(); // Initializing an Express Router to handle API routes
+const { Client } = require('ssh2'); // Importing the SSH2 Client for executing SSH commands on a remote server
+const loadConfigFile = require('./getConfigurationFile'); // Loading a configuration file module
+
+const InstallationExecString = require('../../utils/InstallationExecString'); // Custom utility to generate execution strings for the installation process
+
 // @route    POST api/installation/install
-// @desc     Install TTM
+// @desc     Install TTM (Topological Task Manager)
 // @access   Public
 router.post('/install', async (req, res) => {
-  const installationConfiguration = req.body;
-  const config = await loadConfigFile();
-  let stdout = '';
-  let stderr = '';
-  ttmHome = config.configData.TTMHome;
+  const installationConfiguration = req.body; // Getting installation configuration from the request body
+  const config = await loadConfigFile(); // Loading configuration from an external file
+  let stdout = ''; // Variable to capture standard output from SSH commands
+  let stderr = ''; // Variable to capture standard error output from SSH commands
+  ttmHome = config.configData.TTMHome; // Accessing the TTM home directory from the configuration
+
   try {
-    const conn = new Client();
+    const conn = new Client(); // Creating a new SSH client instance
 
     conn.on('ready', () => {
-      // Execute the first command
+      // Event handler triggered when the SSH connection is ready
+      // Execute the first command (download and extract files)
       conn.exec(
-        `cd ${ttmHome} && find . -mindepth 1 -delete && wget http://illin3301:28080/nexus/service/local/repositories/amd-core-fnd-Releases/content/com/amdocs/mec/packager/10.24.0.0/2024052607/10.24.0.0-2024052607.tar && tar -xvf 10.24.0.0-2024052607.tar && tar -xvf xpi-packaging-9.22.1.0.tar && jar -xvf ttm-packager-10.24.0.0-general-package-2024052607.jar product/template-topologies/EPC_TTM.topology && cd installer/bin/ && ./xpi_create_silent_property.sh  --details all ${ttmHome}product/template-topologies/EPC_TTM.topology ${ttmHome}ttm-packager-10.24.0.0-general-package-2024052607.jar`,
+        `cd ${ttmHome} && source ~/.profile && find . -mindepth 1 -delete && wget http://illin3301:28080/nexus/service/local/repositories/amd-core-fnd-Releases/content/com/amdocs/mec/packager/10.24.0.0/2024052607/10.24.0.0-2024052607.tar && tar -xvf 10.24.0.0-2024052607.tar && tar -xvf xpi-packaging-9.22.1.0.tar && jar -xvf ttm-packager-10.24.0.0-general-package-2024052607.jar product/template-topologies/EPC_TTM.topology && cd installer/bin/ && ./xpi_create_silent_property.sh  --details all ${ttmHome}product/template-topologies/EPC_TTM.topology ${ttmHome}ttm-packager-10.24.0.0-general-package-2024052607.jar`,
         (err, stream) => {
           if (err) {
-            console.error('Command execution error:', err);
-            return res.status(500).send('Command execution failed');
+            console.error('Command execution error:', err); // Log if there is an error during execution
+            return res.status(500).send('Command execution failed'); // Send error response
           }
 
           stream.on('data', (data) => {
-            stdout += data.toString(); // Capture the stdout data
+            stdout += data.toString(); // Capture the stdout data from the SSH command
           });
 
           stream.stderr.on('data', (data) => {
-            stderr += data.toString(); // Capture the stderr data
+            stderr += data.toString(); // Capture the stderr data from the SSH command
           });
 
           stream.on('close', (code, signal) => {
+            // When the first command completes, check its exit code
+            console.log(stderr);
+            if (code !== 0) {
+              console.error(
+                'Failed download the tar file from nexus, extract it, and create a property file...'
+              );
+              return res.status(500).send('Installation failed'); // Send error response if the command fails
+            }
             console.log(
-              'All process until generating the property file finished with code:',
-              code
+              'Succeeded in downloading, extracting, and creating the property file'
             );
 
-            if (code !== 0) {
-              console.error('First command failed with stderr:', stderr);
-              return res.status(500).send('First command failed');
-            }
-            let execString = `cd ${ttmHome}product/template-topologies/ && ${OVERRIDE_DATA_PUMP_FILE} `;
-            if (installationConfiguration.clients.includes('ABP')) {
-              //ABP_EPCT_DP_PATH
-              execString = addToExecString(
-                execString,
-                ABP_EPCT_DP_PATH,
-                'ABP_EPCT_DP_PATH',
-                installationConfiguration.clientsFormData.ABP_EPCT_DP_PATH,
-                '(Profiles_Configuration/ABP/ABP.profile/abp.EPCT_DP_PATH=)'
-              );
-              //ABP_SRC_DB_USER
-              execString = addToExecString(
-                execString,
-                ABP_SRC_DB_USER,
-                'ABP_SRC_DB_USER',
-                installationConfiguration.clientsFormData.ABP_SRC_DB_USER,
-                '(Profiles_Configuration/ABP/ABP.profile/Source.ref.DB/abp.src_ref_db_user=)'
-              );
-              //ABP_SRC_DB_PASSWORD
-              execString = addToExecString(
-                execString,
-                ABP_SRC_DB_PASSWORD,
-                'ABP_SRC_DB_PASSWORD',
-                installationConfiguration.clientsFormData.ABP_SRC_DB_PASSWORD,
-                '(Profiles_Configuration/ABP/ABP.profile/Source.ref.DB/abp.src_ref_db_password=)'
-              );
-              //ABP_SRC_DB_INSTANCE
-              execString = addToExecString(
-                execString,
-                ABP_SRC_DB_INSTANCE,
-                'ABP_SRC_DB_INSTANCE',
-                installationConfiguration.clientsFormData.ABP_SRC_DB_INSTANCE,
-                '(Profiles_Configuration/ABP/ABP.profile/Source.ref.DB/abp.src_ref_db_instance=)'
-              );
-              //ABP_TRG_DB_CONN_STRING
-              execString = addToExecString(
-                execString,
-                ABP_TRG_DB_CONN_STRING,
-                'ABP_TRG_DB_CONN_STRING',
-                installationConfiguration.clientsFormData
-                  .ABP_TRG_DB_CONN_STRING,
-                '(Profiles_Configuration/ABP/ABP.profile/abp.trg_db_conn_string=)'
-              );
-            } else {
-              //ABP_EPCT_DP_DIR_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                ABP_EPCT_DP_DIR_DISABLE
-              );
-              //ABP_SRC_DB_USER_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                ABP_SRC_DB_USER_DISABLE
-              );
-              //ABP_SRC_DB_PASSWORD_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                ABP_SRC_DB_PASSWORD_DISABLE
-              );
-              //ABP_SRC_DB_INSTANCE_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                ABP_SRC_DB_INSTANCE_DISABLE
-              );
-              //ABP_CLIENT_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                ABP_CLIENT_DISABLE
-              );
-            }
-            if (installationConfiguration.clients.includes('OMS')) {
-              //OMS_EPCT_DP_PATH
-              execString = addToExecString(
-                execString,
-                OMS_EPCT_DP_PATH,
-                'OMS_EPCT_DP_PATH',
-                installationConfiguration.clientsFormData.OMS_EPCT_DP_PATH,
-                '(Profiles_Configuration/OMS/OMS.profile/oms.EPCT_DP_PATH=)'
-              );
-              //OMS_SRC_DB_USER
-              execString = addToExecString(
-                execString,
-                OMS_SRC_DB_USER,
-                'OMS_SRC_DB_USER',
-                installationConfiguration.clientsFormData.OMS_SRC_DB_USER,
-                '(Profiles_Configuration/OMS/OMS.profile/Source.ref.DB/oms.src_ref_db_user=)'
-              );
-              //OMS_SRC_DB_PASSWORD
-              execString = addToExecString(
-                execString,
-                OMS_SRC_DB_PASSWORD,
-                'OMS_SRC_DB_PASSWORD',
-                installationConfiguration.clientsFormData.OMS_SRC_DB_PASSWORD,
-                '(Profiles_Configuration/OMS/OMS.profile/Source.ref.DB/oms.src_ref_db_password=)'
-              );
-              //OMS_SRC_DB_INSTANCE
-              execString = addToExecString(
-                execString,
-                OMS_SRC_DB_INSTANCE,
-                'OMS_SRC_DB_INSTANCE',
-                installationConfiguration.clientsFormData.OMS_SRC_DB_INSTANCE,
-                '(Profiles_Configuration/OMS/OMS.profile/Source.ref.DB/oms.src_ref_db_instance=)'
-              );
-              //OMS_TRG_DB_CONN_STRING
-              execString = addToExecString(
-                execString,
-                OMS_TRG_DB_CONN_STRING,
-                'OMS_TRG_DB_CONN_STRING',
-                installationConfiguration.clientsFormData
-                  .OMS_TRG_DB_CONN_STRING,
-                '(Profiles_Configuration/OMS/OMS.profile/oms.trg_db_conn_string=)'
-              );
-            } else {
-              //OMS_EPCT_DP_DIR_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                OMS_EPCT_DP_DIR_DISABLE
-              );
-              //OMS_SRC_DB_USER_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                OMS_SRC_DB_USER_DISABLE
-              );
-              //OMS_SRC_DB_PASSWORD_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                OMS_SRC_DB_PASSWORD_DISABLE
-              );
-              //OMS_SRC_DB_INSTANCE_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                OMS_SRC_DB_INSTANCE_DISABLE
-              );
-              //OMS_CLIENT_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                OMS_CLIENT_DISABLE
-              );
-            }
-            if (installationConfiguration.clients.includes('OMS_SE')) {
-              //OMS_SE_EPCT_DP_PATH
-              execString = addToExecString(
-                execString,
-                OMS_SE_EPCT_DP_PATH,
-                'OMS_SE_EPCT_DP_PATH',
-                installationConfiguration.clientsFormData.OMS_SE_EPCT_DP_PATH,
-                '(Profiles_Configuration/OMS_SE/OMS_SE.profile/oms_se.EPCT_DP_PATH=)'
-              );
-              //OMS_SE_SRC_DB_USER
-              execString = addToExecString(
-                execString,
-                OMS_SE_SRC_DB_USER,
-                'OMS_SE_SRC_DB_USER',
-                installationConfiguration.clientsFormData.OMS_SE_SRC_DB_USER,
-                '(Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_user=)'
-              );
-              //OMS_SE_SRC_DB_PASSWORD
-              execString = addToExecString(
-                execString,
-                OMS_SE_SRC_DB_PASSWORD,
-                'OMS_SE_SRC_DB_PASSWORD',
-                installationConfiguration.clientsFormData
-                  .OMS_SE_SRC_DB_PASSWORD,
-                '(Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_password=)'
-              );
-              //OMS_SE_SRC_DB_INSTANCE
-              execString = addToExecString(
-                execString,
-                OMS_SE_SRC_DB_INSTANCE,
-                'OMS_SE_SRC_DB_INSTANCE',
-                installationConfiguration.clientsFormData
-                  .OMS_SE_SRC_DB_INSTANCE,
-                '(Profiles_Configuration/OMS_SE/OMS_SE.profile/Source.ref.DB/oms_se.src_ref_db_instance=)'
-              );
-              //OMS_SE_TRG_DB_CONN_STRING
-              execString = addToExecString(
-                execString,
-                OMS_SE_TRG_DB_CONN_STRING,
-                'OMS_SE_TRG_DB_CONN_STRING',
-                installationConfiguration.clientsFormData
-                  .OMS_SE_TRG_DB_CONN_STRING,
-                '(Profiles_Configuration/OMS_SE/OMS_SE.profile/oms_se.trg_db_conn_string=)'
-              );
-            } else {
-              //OMS_SE_EPCT_DP_DIR_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                OMS_SE_EPCT_DP_DIR_DISABLE
-              );
-              //OMS_SE_SRC_DB_USER_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                OMS_SE_SRC_DB_USER_DISABLE
-              );
-              //OMS_SE_SRC_DB_PASSWORD_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                OMS_SE_SRC_DB_PASSWORD_DISABLE
-              );
-              //OMS_SE_SRC_DB_INSTANCE_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                OMS_SE_SRC_DB_INSTANCE_DISABLE
-              );
-              //OMS_SE_CLIENT_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                OMS_SE_CLIENT_DISABLE
-              );
-            }
-            if (installationConfiguration.clients.includes('MCSS_SE')) {
-              //MCSS_SE_EPCT_DP_PATH
-              execString = addToExecString(
-                execString,
-                MCSS_SE_EPCT_DP_PATH,
-                'MCSS_SE_EPCT_DP_PATH',
-                installationConfiguration.clientsFormData.MCSS_SE_EPCT_DP_PATH,
-                '(Profiles_Configuration/MCSS_SE/MCSS_SE.profile/mcss_se.EPCT_DP_PATH=)'
-              );
-              //MCSS_SE_SRC_DB_USER
-              execString = addToExecString(
-                execString,
-                MCSS_SE_SRC_DB_USER,
-                'MCSS_SE_SRC_DB_USER',
-                installationConfiguration.clientsFormData.MCSS_SE_SRC_DB_USER,
-                '(Profiles_Configuration/MCSS_SE/MCSS_SE.profile/Source.ref.DB/mcss_se.src_ref_db_user=)'
-              );
-              //MCSS_SE_SRC_DB_PASSWORD
-              execString = addToExecString(
-                execString,
-                MCSS_SE_SRC_DB_PASSWORD,
-                'MCSS_SE_SRC_DB_PASSWORD',
-                installationConfiguration.clientsFormData
-                  .MCSS_SE_SRC_DB_PASSWORD,
-                '(Profiles_Configuration/MCSS_SE/MCSS_SE.profile/Source.ref.DB/mcss_se.src_ref_db_password=)'
-              );
-              //MCSS_SE_SRC_DB_INSTANCE
-              execString = addToExecString(
-                execString,
-                MCSS_SE_SRC_DB_INSTANCE,
-                'MCSS_SE_SRC_DB_INSTANCE',
-                installationConfiguration.clientsFormData
-                  .MCSS_SE_SRC_DB_INSTANCE,
-                '(Profiles_Configuration/MCSS_SE/MCSS_SE.profile/Source.ref.DB/mcss_se.src_ref_db_instance=)'
-              );
-              //MCSS_SE_TRG_DB_CONN_STRING
-              execString = addToExecString(
-                execString,
-                MCSS_SE_TRG_DB_CONN_STRING,
-                'MCSS_SE_TRG_DB_CONN_STRING',
-                installationConfiguration.clientsFormData
-                  .MCSS_SE_TRG_DB_CONN_STRING,
-                '(Profiles_Configuration/MCSS_SE/MCSS_SE.profile/mcss_se.trg_db_conn_string=)'
-              );
-            } else {
-              //MCSS_SE_EPCT_DP_DIR_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                MCSS_SE_EPCT_DP_DIR_DISABLE
-              );
-              //MCSS_SE_SRC_DB_USER_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                MCSS_SE_SRC_DB_USER_DISABLE
-              );
-              //MCSS_SE_SRC_DB_PASSWORD_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                MCSS_SE_SRC_DB_PASSWORD_DISABLE
-              );
-              //MCSS_SE_SRC_DB_INSTANCE_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                MCSS_SE_SRC_DB_INSTANCE_DISABLE
-              );
-              //MCSS_SE_CLIENT_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                MCSS_SE_CLIENT_DISABLE
-              );
-            }
-            if (installationConfiguration.clients.includes('ACPE')) {
-              //ACPE_EPCT_DP_PATH
-              execString = addToExecString(
-                execString,
-                ACPE_EPCT_DP_PATH,
-                'ACPE_EPCT_DP_PATH',
-                installationConfiguration.clientsFormData.ACPE_EPCT_DP_PATH,
-                '(Profiles_Configuration/ACPE/ACPE.profile/acpe.EPCT_DP_PATH=)'
-              );
-              //ACPE_SRC_DB_USER
-              execString = addToExecString(
-                execString,
-                ACPE_SRC_DB_USER,
-                'ACPE_SRC_DB_USER',
-                installationConfiguration.clientsFormData.ACPE_SRC_DB_USER,
-                '(Profiles_Configuration/ACPE/ACPE.profile/Source.ref.DB/acpe.src_ref_db_user=)'
-              );
-              //ACPE_SRC_DB_PASSWORD
-              execString = addToExecString(
-                execString,
-                ACPE_SRC_DB_PASSWORD,
-                'ACPE_SRC_DB_PASSWORD',
-                installationConfiguration.clientsFormData.ACPE_SRC_DB_PASSWORD,
-                '(Profiles_Configuration/ACPE/ACPE.profile/Source.ref.DB/acpe.src_ref_db_password=)'
-              );
-              //ACPE_SRC_DB_INSTANCE
-              execString = addToExecString(
-                execString,
-                ACPE_SRC_DB_INSTANCE,
-                'ACPE_SRC_DB_INSTANCE',
-                installationConfiguration.clientsFormData.ACPE_SRC_DB_INSTANCE,
-                '(Profiles_Configuration/ACPE/ACPE.profile/Source.ref.DB/acpe.src_ref_db_instance=)'
-              );
-              //ACPE_TRG_DB_CONN_STRING
-              execString = addToExecString(
-                execString,
-                ACPE_TRG_DB_CONN_STRING,
-                'ACPE_TRG_DB_CONN_STRING',
-                installationConfiguration.clientsFormData
-                  .ACPE_TRG_DB_CONN_STRING,
-                '(Profiles_Configuration/ACPE/ACPE.profile/acpe.trg_db_conn_string=)'
-              );
-            } else {
-              //ACPE_EPCT_DP_DIR_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                ACPE_EPCT_DP_DIR_DISABLE
-              );
-              //ACPE_SRC_DB_USER_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                ACPE_SRC_DB_USER_DISABLE
-              );
-              //ACPE_SRC_DB_PASSWORD_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                ACPE_SRC_DB_PASSWORD_DISABLE
-              );
-              //ACPE_SRC_DB_INSTANCE_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                ACPE_SRC_DB_INSTANCE_DISABLE
-              );
-              //ACPE_CLIENT_DISABLE
-              execString = addDisableToExecString(
-                execString,
-                ACPE_CLIENT_DISABLE
-              );
-            }
+            // Prepare execution string for the second command
+            let execString = `cd ${ttmHome}product/template-topologies/ `;
+            execString = InstallationExecString(
+              execString,
+              installationConfiguration
+            ); // Generate the exec string with additional configurations
 
             // Execute the second command only after the first has completed
             conn.exec(execString, (err, stream) => {
               if (err) {
-                console.error('Command execution error:', err);
+                console.error('Command execution error:', err); // Log error during the second command execution
                 return res.status(500).send('Command execution failed');
               }
 
               stream.on('data', (data) => {
-                stdout += data.toString(); // Capture the stdout data
+                stdout += data.toString(); // Capture stdout from the second command
               });
 
               stream.stderr.on('data', (data) => {
-                stderr += data.toString(); // Capture the stderr data
+                stderr += data.toString(); // Capture stderr from the second command
               });
 
               stream.on('close', (code, signal) => {
-                console.log('Second command finished with code:', code);
-
+                // Check if the second command was successful
                 if (code !== 0) {
-                  console.error('Second command failed with stderr:', stderr);
-                  return res.status(500).send('Third command failed');
+                  console.error('Failed to override all properties');
+                  return res.status(500).send('Installation failed'); // Send error response if the second command fails
                 }
-                // Execute the Third command only after the first has completed
+                console.log('Succeeded in overriding all properties');
+
+                // Execute the third command only after the second has completed
                 conn.exec(
-                  `cd ${ttmHome}installer/bin/ && ./xpi_installer.sh -i -p ttm-packager-10.24.0.0-general-package-2024052607.jar -t ${ttmHome}product/template-topologies/EPC_TTM.topology -pr ${ttmHome}product/template-topologies/EPC_TTM.properties `,
+                  `source ~/.profile && cd ${ttmHome}installer/bin/ && ./xpi_installer.sh -i -p ttm-packager-10.24.0.0-general-package-2024052607.jar -t ${ttmHome}product/template-topologies/EPC_TTM.topology -pr ${ttmHome}product/template-topologies/EPC_TTM.properties`,
                   (err, stream) => {
                     if (err) {
-                      console.error('Command execution error:', err);
+                      console.error('Command execution error:', err); // Log error during the third command execution
                       return res.status(500).send('Command execution failed');
                     }
 
                     stream.on('data', (data) => {
-                      stdout += data.toString(); // Capture the stdout data
+                      stdout += data.toString(); // Capture stdout from the third command
                     });
 
                     stream.stderr.on('data', (data) => {
-                      stderr += data.toString(); // Capture the stderr data
+                      stderr += data.toString(); // Capture stderr from the third command
                     });
 
                     stream.on('close', (code, signal) => {
-                      console.log('Third command finished with code:', code);
-
+                      // Final check to confirm successful installation
+                      console.log(stderr);
                       if (code !== 0) {
-                        console.error(
-                          'Third command failed with stderr:',
-                          stderr
-                        );
-                        return res.status(500).send('Third command failed');
+                        return res.status(500).send('Installation failed');
                       }
-
-                      conn.end();
-                      res.status(200).json({ data: stdout });
+                      console.log('Installation finished successfully');
+                      conn.end(); // Close the SSH connection
+                      res.status(200).json({ data: stdout }); // Send successful response with captured stdout
                     });
                   }
                 );
@@ -514,24 +117,26 @@ router.post('/install', async (req, res) => {
     });
 
     conn.on('error', (err) => {
+      // Event handler for SSH connection errors
       console.error('SSH connection error:', err);
       res
         .status(500)
         .send(
           'SSH connection failed, check connection details of TTM Environment'
-        );
+        ); // Respond with an error if SSH connection fails
     });
 
+    // Establish SSH connection using credentials from the config file
     conn.connect({
-      host: config.configData.TTMhost,
-      port: config.configData.TTMport,
-      username: config.configData.TTMusername,
-      password: config.configData.TTMpassword,
+      host: config.configData.TTMhost, // TTM host address
+      port: config.configData.TTMport, // SSH port
+      username: config.configData.TTMusername, // SSH username
+      password: config.configData.TTMpassword, // SSH password
     });
   } catch (error) {
-    console.error('Unexpected error:', error);
-    res.status(500).send('Unexpected error occurred');
+    console.error('Unexpected error:', error); // Catch and log unexpected errors
+    res.status(500).send('Unexpected error occurred'); // Respond with a generic error message
   }
 });
 
-module.exports = router;
+module.exports = router; // Export the router to be used in the Express app
