@@ -1,10 +1,8 @@
-// Import utility functions for constructing execution strings
 const {
   addToExecString,
   addDisableToExecString,
 } = require('../utils/addToExecString');
 
-// Import constants for client configurations and database settings
 const {
   ABP_CLIENT_DISABLE,
   OMS_CLIENT_DISABLE,
@@ -65,19 +63,40 @@ const {
   ACPE_TRG_DB_CONN_STRING,
 } = require('../installation consts/installationConsts');
 
-// Helper function for adding execution strings for client configurations
-// This function adds the necessary configuration data for each client (ABP, OMS, etc.) to the execution string.
+/**
+ * @desc    Adds configuration commands for a specific client to the execution string
+ *          based on the provided client configuration and form data. If the client
+ *          is included in the installation configuration, the relevant commands are
+ *          added; otherwise, disabling commands are appended.
+ * @access  Public
+ *
+ * @param   {string} execString - The current string of execution commands to be
+ *                                 modified.
+ * @param   {string} clientConfig - The identifier for the client whose configuration
+ *                                  is being added.
+ * @param   {object} formData - An object containing form data, including connection
+ *                               strings and paths.
+ * @param   {object} constants - An object containing constants used in the execution
+ *                                commands.
+ * @param   {object} disableConstants - An object containing constants for disabling
+ *                                       commands when the client configuration is not
+ *                                       included.
+ * @param   {array} installationConfiguration - An object containing installation
+ *                                             configurations, including a list of
+ *                                             clients.
+ *
+ * @returns {string} - The modified execution string with the added or disabled
+ *                     client configuration commands.
+ */
 function addClientConfig(
   execString,
-  clientConfig, // The name of the client (ABP, OMS, etc.)
-  formData, // Data from the installation form related to the client
-  constants, // Constants specific to the client (e.g., directory, database user)
-  disableConstants, // Constants to disable certain client settings if not configured
-  installationConfiguration // The full installation configuration object
+  clientConfig,
+  formData,
+  constants,
+  disableConstants,
+  installationConfiguration
 ) {
-  // Check if the client is included in the installation configuration
   if (installationConfiguration.clients.includes(clientConfig)) {
-    // Add configuration to execution string for each relevant database setting (directory, path, user, etc.)
     execString = addToExecString(
       execString,
       constants.DIR,
@@ -96,21 +115,21 @@ function addClientConfig(
       execString,
       constants.SRC_DB_USER,
       `${clientConfig}_SRC_DB_USER`,
-      formData.SRC_DB_USER,
+      getUser(formData.SRC_DB_CONN_STRING),
       `(Profiles_Configuration/${clientConfig}/${clientConfig}.profile/Source.ref.DB/${clientConfig.toLowerCase()}.src_ref_db_user=)`
     );
     execString = addToExecString(
       execString,
       constants.SRC_DB_PASSWORD,
       `${clientConfig}_SRC_DB_PASSWORD`,
-      formData.SRC_DB_PASSWORD,
+      getPassword(formData.SRC_DB_CONN_STRING),
       `(Profiles_Configuration/${clientConfig}/${clientConfig}.profile/Source.ref.DB/${clientConfig.toLowerCase()}.src_ref_db_password=)`
     );
     execString = addToExecString(
       execString,
       constants.SRC_DB_INSTANCE,
       `${clientConfig}_SRC_DB_INSTANCE`,
-      formData.SRC_DB_INSTANCE,
+      getInstance(formData.SRC_DB_CONN_STRING),
       `(Profiles_Configuration/${clientConfig}/${clientConfig}.profile/Source.ref.DB/${clientConfig.toLowerCase()}.src_ref_db_instance=)`
     );
     execString = addToExecString(
@@ -121,7 +140,6 @@ function addClientConfig(
       `(Profiles_Configuration/${clientConfig}/${clientConfig}.profile/${clientConfig.toLowerCase()}.trg_db_conn_string=)`
     );
   } else {
-    // If the client is not included, add disabled configurations
     execString = addDisableToExecString(
       execString,
       disableConstants.DIR_DISABLE
@@ -143,29 +161,90 @@ function addClientConfig(
       disableConstants.CLIENT_DISABLE
     );
   }
-  return execString; // Return the updated execution string
+  return execString;
 }
 
-// Main function to build the full installation execution string
+/**
+ * @desc    Extracts the user information from a database connection string
+ *          by splitting the string at the '/' character. The user is expected
+ *          to be the first segment of the string.
+ * @access  Public
+ *
+ * @param   {string} dbString - The database connection string from which the user
+ *                               information is to be extracted.
+ *
+ * @returns {string} - The extracted user information from the database connection
+ *                     string.
+ */
+function getUser(dbString) {
+  return dbString.split('/')[0];
+}
+
+/**
+ * @desc    Extracts the password from a database connection string
+ *          by splitting the string at the '/' character to isolate the
+ *          password and then further splitting at the '@' character
+ *          to retrieve the password part.
+ * @access  Public
+ *
+ * @param   {string} dbString - The database connection string from which the
+ *                               password information is to be extracted.
+ *
+ * @returns {string} - The extracted password from the database connection
+ *                     string.
+ */
+function getPassword(dbString) {
+  return dbString.split('/')[1].split('@')[0];
+}
+
+/**
+ * @desc    Extracts the database instance name from a database connection string
+ *          by splitting the string at the '@' character to isolate the instance
+ *          information.
+ * @access  Public
+ *
+ * @param   {string} dbString - The database connection string from which the
+ *                               instance information is to be extracted.
+ *
+ * @returns {string} - The extracted instance name from the database connection
+ *                     string.
+ */
+function getInstance(dbString) {
+  return dbString.split('@')[1];
+}
+
+/**
+ * @desc    Constructs an execution string for the installation configuration by
+ *          appending various client configurations and other related parameters
+ *          based on the provided installation data.
+ * @access  Public
+ *
+ * @param   {string} execString - The initial execution string to which commands
+ *                                 will be added.
+ * @param   {object} installationConfiguration - The configuration data for
+ *                                              installation, including form data
+ *                                              for different clients.
+ *
+ * @returns {string} - The updated execution string containing all the appended
+ *                     commands and configurations.
+ */
 function InstallationExecString(execString, installationConfiguration) {
-  // Add override data pump file configuration
   execString = addToExecString(
     execString,
     OVERRIDE_DATA_PUMP_FILE,
     'OVERRIDE_DATA_PUMP_FILE',
-    installationConfiguration.overrideDataPumpFile ? 'YES' : 'NO',
+    installationConfiguration.formData.overrideDataPumpFile ? 'YES' : 'NO',
     '(Profiles_Configuration/override_datapump_file=)'
   );
-  // Add remote database user configuration
+
   execString = addToExecString(
     execString,
     REMOTE_DB_USER,
     'REMOTE_DB_USER',
-    installationConfiguration.remoteDBUser,
+    installationConfiguration.formData.remoteDBUser,
     '(Profiles_Configuration/epct.remote_db_usr=)'
   );
 
-  // Add ABP client configuration
   execString = addClientConfig(
     execString,
     'ABP',
@@ -188,7 +267,6 @@ function InstallationExecString(execString, installationConfiguration) {
     installationConfiguration
   );
 
-  // Add OMS client configuration
   execString = addClientConfig(
     execString,
     'OMS',
@@ -211,7 +289,6 @@ function InstallationExecString(execString, installationConfiguration) {
     installationConfiguration
   );
 
-  // Add OMS_SE client configuration
   execString = addClientConfig(
     execString,
     'OMS_SE',
@@ -234,7 +311,6 @@ function InstallationExecString(execString, installationConfiguration) {
     installationConfiguration
   );
 
-  // Add MCSS_SE client configuration
   execString = addClientConfig(
     execString,
     'MCSS_SE',
@@ -257,7 +333,6 @@ function InstallationExecString(execString, installationConfiguration) {
     installationConfiguration
   );
 
-  // Add ACPE client configuration
   execString = addClientConfig(
     execString,
     'ACPE',
@@ -280,7 +355,7 @@ function InstallationExecString(execString, installationConfiguration) {
     installationConfiguration
   );
 
-  return execString; // Return the final execution string with all configurations
+  return execString;
 }
 
 module.exports = InstallationExecString;
