@@ -1,142 +1,306 @@
-const express = require('express'); // Importing Express framework
-const router = express.Router(); // Initializing an Express Router to handle API routes
-const { Client } = require('ssh2'); // Importing the SSH2 Client for executing SSH commands on a remote server
-const loadConfigFile = require('./getConfigurationFile'); // Loading a configuration file module
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+const router = express.Router();
+const { exec } = require('child_process');
+const { Client } = require('ssh2');
 
-const InstallationExecString = require('../../utils/InstallationExecString'); // Custom utility to generate execution strings for the installation process
+const loadConfigFile = require('../../utils/getConfigurationFile');
+const InstallationExecString = require('../../utils/InstallationExecString');
+const linuxConnectionClient = require('../../utils/linuxConnectionClient');
 
-// @route    POST api/installation/install
-// @desc     Install TTM (Topological Task Manager)
-// @access   Public
+/**
+ * @async
+ * @route   POST /api/installation/install
+ * @desc    Handles the installation of the Topological Task Manager (TTM) by executing a series of commands on a remote server via SSH.
+ *          It performs the following steps:
+ *          1. Downloads the specified tar file from the provided URL.
+ *          2. Extracts the downloaded tar files and creates the necessary property file.
+ *          3. Overrides installation properties based on the provided configuration.
+ *          4. Executes the installation process using the generated properties.
+ * @access  Public
+ *
+ * @param {Object} req - The request object containing the installation configuration in the body.
+ * @param {Object} res - The response object used to send back the status of the installation process.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the installation is complete and the response is sent.
+ */
 router.post('/install', async (req, res) => {
-  const installationConfiguration = req.body; // Getting installation configuration from the request body
-  const config = await loadConfigFile(); // Loading configuration from an external file
-  let stdout = ''; // Variable to capture standard output from SSH commands
-  let stderr = ''; // Variable to capture standard error output from SSH commands
-  ttmHome = config.configData.TTMHome; // Accessing the TTM home directory from the configuration
-
   try {
-    const conn = new Client(); // Creating a new SSH client instance
+    const installationConfiguration = req.body;
+    const config = await loadConfigFile();
+    const { TTMHome } = config.configData;
+    const { URL, tarName, xpiName, jarName, obfuscationTar } =
+      installationConfiguration.matchedVersion;
+    const preCommand = `cd ${TTMHome} && source ~/.profile &&`;
+    if (installationConfiguration.tarOnEnvironment) {
+      await executeDeleteAllOtherFilesExceptTar(TTMHome, tarName);
+    } else {
+      await executeDownloadTar(preCommand, URL);
+    }
+    await executeExtractAndCreateProperties(
+      preCommand,
+      tarName,
+      xpiName,
+      jarName,
+      obfuscationTar,
+      TTMHome
+    );
+    await executeOverrideProperties(installationConfiguration, TTMHome);
+    await executeInstallation(preCommand, jarName, TTMHome);
 
-    conn.on('ready', () => {
-      // Event handler triggered when the SSH connection is ready
-      // Execute the first command (download and extract files)
-      conn.exec(
-        `cd ${ttmHome} && source ~/.profile && find . -mindepth 1 -delete && wget http://illin3301:28080/nexus/service/local/repositories/amd-core-fnd-Releases/content/com/amdocs/mec/packager/10.24.0.0/2024052607/10.24.0.0-2024052607.tar && tar -xvf 10.24.0.0-2024052607.tar && tar -xvf xpi-packaging-9.22.1.0.tar && jar -xvf ttm-packager-10.24.0.0-general-package-2024052607.jar product/template-topologies/EPC_TTM.topology && cd installer/bin/ && ./xpi_create_silent_property.sh  --details all ${ttmHome}product/template-topologies/EPC_TTM.topology ${ttmHome}ttm-packager-10.24.0.0-general-package-2024052607.jar`,
-        (err, stream) => {
-          if (err) {
-            console.error('Command execution error:', err); // Log if there is an error during execution
-            return res.status(500).send('Command execution failed'); // Send error response
-          }
-
-          stream.on('data', (data) => {
-            stdout += data.toString(); // Capture the stdout data from the SSH command
-          });
-
-          stream.stderr.on('data', (data) => {
-            stderr += data.toString(); // Capture the stderr data from the SSH command
-          });
-
-          stream.on('close', (code, signal) => {
-            // When the first command completes, check its exit code
-            console.log(stderr);
-            if (code !== 0) {
-              console.error(
-                'Failed download the tar file from nexus, extract it, and create a property file...'
-              );
-              return res.status(500).send('Installation failed'); // Send error response if the command fails
-            }
-            console.log(
-              'Succeeded in downloading, extracting, and creating the property file'
-            );
-
-            // Prepare execution string for the second command
-            let execString = `cd ${ttmHome}product/template-topologies/ `;
-            execString = InstallationExecString(
-              execString,
-              installationConfiguration
-            ); // Generate the exec string with additional configurations
-
-            // Execute the second command only after the first has completed
-            conn.exec(execString, (err, stream) => {
-              if (err) {
-                console.error('Command execution error:', err); // Log error during the second command execution
-                return res.status(500).send('Command execution failed');
-              }
-
-              stream.on('data', (data) => {
-                stdout += data.toString(); // Capture stdout from the second command
-              });
-
-              stream.stderr.on('data', (data) => {
-                stderr += data.toString(); // Capture stderr from the second command
-              });
-
-              stream.on('close', (code, signal) => {
-                // Check if the second command was successful
-                if (code !== 0) {
-                  console.error('Failed to override all properties');
-                  return res.status(500).send('Installation failed'); // Send error response if the second command fails
-                }
-                console.log('Succeeded in overriding all properties');
-
-                // Execute the third command only after the second has completed
-                conn.exec(
-                  `source ~/.profile && cd ${ttmHome}installer/bin/ && ./xpi_installer.sh -i -p ttm-packager-10.24.0.0-general-package-2024052607.jar -t ${ttmHome}product/template-topologies/EPC_TTM.topology -pr ${ttmHome}product/template-topologies/EPC_TTM.properties`,
-                  (err, stream) => {
-                    if (err) {
-                      console.error('Command execution error:', err); // Log error during the third command execution
-                      return res.status(500).send('Command execution failed');
-                    }
-
-                    stream.on('data', (data) => {
-                      stdout += data.toString(); // Capture stdout from the third command
-                    });
-
-                    stream.stderr.on('data', (data) => {
-                      stderr += data.toString(); // Capture stderr from the third command
-                    });
-
-                    stream.on('close', (code, signal) => {
-                      // Final check to confirm successful installation
-                      console.log(stderr);
-                      if (code !== 0) {
-                        return res.status(500).send('Installation failed');
-                      }
-                      console.log('Installation finished successfully');
-                      conn.end(); // Close the SSH connection
-                      res.status(200).json({ data: stdout }); // Send successful response with captured stdout
-                    });
-                  }
-                );
-              });
-            });
-          });
-        }
-      );
-    });
-
-    conn.on('error', (err) => {
-      // Event handler for SSH connection errors
-      console.error('SSH connection error:', err);
-      res
-        .status(500)
-        .send(
-          'SSH connection failed, check connection details of TTM Environment'
-        ); // Respond with an error if SSH connection fails
-    });
-
-    // Establish SSH connection using credentials from the config file
-    conn.connect({
-      host: config.configData.TTMhost, // TTM host address
-      port: config.configData.TTMport, // SSH port
-      username: config.configData.TTMusername, // SSH username
-      password: config.configData.TTMpassword, // SSH password
-    });
+    res.status(200).send('Installation Finished Successfully');
   } catch (error) {
-    console.error('Unexpected error:', error); // Catch and log unexpected errors
-    res.status(500).send('Unexpected error occurred'); // Respond with a generic error message
+    console.error('Installation process encountered an error:', error);
+    res.status(400).send('Installation failed');
   }
 });
 
-module.exports = router; // Export the router to be used in the Express app
+/**
+ * @async
+ * @desc    Executes a command to download a tar file from a specified URL on a remote server.
+ *          The command first cleans the current directory by deleting all files before
+ *          downloading the new tar file. It uses the provided preCommand to navigate to
+ *          the correct directory and source the necessary environment variables.
+ *
+ * @param {string} preCommand - The command prefix that includes directory change and environment sourcing.
+ * @param {string} url - The URL of the tar file to be downloaded from the nexus repository.
+ *
+ * @throws {Error} If the download command fails, an error is thrown indicating the failure.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the download command is executed successfully.
+ */
+async function executeDownloadTar(preCommand, url) {
+  const command = `${preCommand} find . -mindepth 1 -delete && wget ${url}`;
+  const response = await linuxConnectionClient(command);
+  if (response.code !== 0) {
+    throw new Error('Failed to download the tar file from nexus');
+  }
+  console.log('Succeeded in downloading file from nexus');
+}
+
+/**
+ * @function executeDeleteAllOtherFilesExceptTar
+ * @desc    Deletes all files in the specified directory except the file with the given tar name.
+ *          It uses the `find` command to locate and remove files, skipping the one specified by `tarName`.
+ * @access  Private
+ *
+ * @param {string} TTMHome - The base directory where the search for files to delete begins.
+ * @param {string} tarName - The name of the tar file that should not be deleted.
+ *
+ * @returns {Promise<void>} - Resolves when all files except the tar file are deleted.
+ */
+async function executeDeleteAllOtherFilesExceptTar(TTMHome, tarName) {
+  const command = `find ${TTMHome} -mindepth 1 ! -name '${tarName}' -exec rm -rf {} +`;
+  await linuxConnectionClient(command);
+  console.log('Succeeded in delete all files');
+}
+
+/**
+ * @async
+ * @desc    Executes a command to extract tar files and create property files on a remote server.
+ *          This function performs the following steps:
+ *          1. Extracts the specified tar and xpi files.
+ *          2. Extracts the specified jar file to obtain a topology file.
+ *          3. Changes the directory to the installer/bin and executes a script to create property files
+ *             based on the extracted topology and jar files.
+ *
+ * @param {string} preCommand - The command prefix that includes directory change and environment sourcing.
+ * @param {string} tarName - The name of the tar file to be extracted.
+ * @param {string} xpiName - The name of the xpi file to be extracted.
+ * @param {string} jarName - The name of the jar file to be extracted.
+ * @param {string} ttmHome - The home directory for TTM, used in the property file creation command.
+ *
+ * @throws {Error} If the extraction or property file creation command fails, an error is thrown indicating the failure.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the extraction and property file creation command is executed successfully.
+ */
+async function executeExtractAndCreateProperties(
+  preCommand,
+  tarName,
+  xpiName,
+  jarName,
+  obfuscationTar,
+  ttmHome
+) {
+  const command = `${preCommand} tar -xvf ${tarName} && tar -xvf ${obfuscationTar} && tar -xvf ${xpiName} && jar -xvf ${jarName} product/template-topologies/EPC_TTM.topology && cd installer/bin/ && ./xpi_create_silent_property.sh --details all ${ttmHome}product/template-topologies/EPC_TTM.topology ${ttmHome}${jarName}`;
+  const response = await linuxConnectionClient(command);
+  if (response.code !== 0) {
+    throw new Error('Failed to extract tars or create property file');
+  }
+  console.log('Succeeded in extracting tars and creating property files');
+}
+
+/**
+ * @async
+ * @desc    Executes a command to override installation properties in a specified directory on a remote server.
+ *          This function constructs a command that:
+ *          1. Changes the directory to the specified path where the property files are located.
+ *          2. Utilizes the InstallationExecString utility to generate the necessary command for overriding properties.
+ *
+ * @param {Object} installationConfiguration - The configuration object containing installation properties to be overridden.
+ * @param {string} ttmHome - The home directory for TTM, used to build the command for navigating to the correct directory.
+ *
+ * @throws {Error} If the command to override the installation properties fails, an error is thrown indicating the failure.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the property overriding command is executed successfully.
+ */
+async function executeOverrideProperties(installationConfiguration, ttmHome) {
+  let command = `cd ${ttmHome}product/template-topologies/ `;
+  command = InstallationExecString(command, installationConfiguration);
+  const response = await linuxConnectionClient(command);
+  if (response.code !== 0) {
+    throw new Error('Failed to override installation properties');
+  }
+  console.log('Succeeded in overriding installation properties');
+}
+
+/**
+ * @async
+ * @desc    Executes the installation script for the specified JAR file on a remote server.
+ *          This function constructs a command that:
+ *          1. Changes the directory to the installer binaries.
+ *          2. Runs the installation script (`xpi_installer.sh`) with the appropriate flags to install the JAR file
+ *             using a specified topology and property file.
+ *
+ * @param {string} preCommand - The command prefix used to navigate to the appropriate directory and set the environment.
+ * @param {string} jarName - The name of the JAR file to be installed.
+ * @param {string} ttmHome - The home directory for TTM, used to construct paths for the topology and property files.
+ *
+ * @throws {Error} If the installation command fails, an error is thrown indicating the failure.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the installation command is executed successfully.
+ */
+async function executeInstallation(preCommand, jarName, ttmHome) {
+  const command = `${preCommand} cd ${ttmHome}installer/bin/ && ./xpi_installer.sh -i -p ${jarName} -t ${ttmHome}product/template-topologies/EPC_TTM.topology -pr ${ttmHome}product/template-topologies/EPC_TTM.properties`;
+  const response = await linuxConnectionClient(command);
+  if (response.code !== 0) {
+    throw new Error('Installation failed');
+  }
+  console.log('Installation finished successfully');
+}
+
+/**
+ * @route   POST /api/installation/checkTarOnEnvironment
+ * @desc    Checks if a specified tar file version exists in the environment.
+ *          It runs a command to search for a tar file with the specified version in the TTMHome directory.
+ *          Returns a message indicating whether the tar file is found or not.
+ * @access  Public
+ *
+ * @param {Object} req - Express request object containing:
+ *   - {string} selectedInstallationVersion - The version of the tar file to check for in the TTMHome directory.
+ *
+ * @param {Object} res - Express response object
+ *
+ * @returns {Object} - JSON response with:
+ *   - {string} message - Success or failure message indicating if the tar file is found.
+ *   - {string} error - Error message if the tar file is not found.
+ */
+router.post('/checkTarOnEnvironment', async (req, res) => {
+  const { selectedInstallationVersion } = req.body;
+  const config = await loadConfigFile();
+  const { TTMHome } = config.configData;
+
+  const command = `cd ${TTMHome} && [ -n "$(ls *${selectedInstallationVersion}*.tar 2>/dev/null)" ] && echo "true" || echo "false"`;
+  const response = await linuxConnectionClient(command);
+
+  if (response.stdout.trim() === 'false') {
+    return res
+      .status(400)
+      .send(
+        `TTM Tar version ${selectedInstallationVersion} not found on the environment`
+      );
+  }
+
+  res.status(200).send('Tar file found');
+});
+
+const upload = multer({
+  dest: '/tmp/uploads',
+});
+
+router.post('/upload', upload.single('file'), async (req, res) => {
+  try {
+    console.log('Received file upload request.');
+    console.log('Uploaded file details:', req.file);
+
+    const config = await loadConfigFile();
+    const { TTMHome, TTMhost, TTMport, TTMusername, TTMpassword } =
+      config.configData;
+
+    const tempPath = path.normalize(req.file.path).replace(/\\/g, '/');
+    const remotePath = path
+      .join(TTMHome, req.file.originalname)
+      .replace(/\\/g, '/');
+
+    const conn = new Client();
+
+    conn
+      .on('ready', () => {
+        console.log('SSH connection ready.');
+        conn.sftp((err, sftp) => {
+          if (err) {
+            console.error('SFTP initialization error:', err.message);
+            conn.end();
+            return res
+              .status(500)
+              .send(`SFTP connection failed: ${err.message}`);
+          }
+
+          console.log('SFTP connection established.');
+
+          const readStream = fs.createReadStream(tempPath);
+          const writeStream = sftp.createWriteStream(remotePath);
+
+          writeStream
+            .on('close', () => {
+              console.log('File successfully transferred');
+              fs.unlink(tempPath, (unlinkErr) => {
+                if (unlinkErr) {
+                  console.error(
+                    'Error deleting temporary file:',
+                    unlinkErr.message
+                  );
+                  return res
+                    .status(500)
+                    .send('Error cleaning up temporary file');
+                }
+
+                console.log('Temporary file deleted.');
+                res
+                  .status(200)
+                  .send('File uploaded and transferred successfully!');
+              });
+
+              conn.end();
+            })
+            .on('error', (writeErr) => {
+              console.error('Error during file transfer:', writeErr.message);
+              conn.end();
+              res
+                .status(500)
+                .send(`Error during file transfer: ${writeErr.message}`);
+            });
+
+          readStream.pipe(writeStream);
+        });
+      })
+      .on('error', (err) => {
+        console.error('SSH connection error:', err.message);
+        res.status(500).send(`SSH connection failed: ${err.message}`);
+      });
+
+    conn.connect({
+      host: TTMhost,
+      port: TTMport,
+      username: TTMusername,
+      password: TTMpassword,
+    });
+  } catch (error) {
+    console.error('Unexpected error:', error.message);
+    res.status(500).send(`Unexpected error: ${error.message}`);
+  }
+});
+
+module.exports = router;

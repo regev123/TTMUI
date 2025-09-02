@@ -1,93 +1,75 @@
 const express = require('express');
 const router = express.Router();
-const config = require('config'); // Imports configuration settings
-const { Client } = require('ssh2'); // Imports SSH2 client to handle SSH connections
-const loadConfigFile = require('./getConfigurationFile'); // Custom module to load configuration data
+const loadConfigFile = require('../../utils/getConfigurationFile');
+const linuxConnectionClient = require('../../utils/linuxConnectionClient');
 
-// @route    POST api/validation/validateTTMHomeCorrectPath
-// @desc     Check TTMHome path correctness from configuration file
-// @access   Public (no authentication required)
+const ERROR_MESSAGE =
+  'The TTM Home path is incorrect, or TTM is not installed. Please update it on the Configuration tab!';
+/**
+ * @desc    Validates the correctness of the TTM (Topological Task Manager) Home path
+ *          by checking if the specified directory contains a "WORK_DIR". This is
+ *          done by executing a command to list the contents of the TTMHome directory.
+ * @access  Public
+ *
+ * @route   POST api/validation/validateTTMHomeCorrectPath
+ *
+ * @param   {object} req - The HTTP request object containing the configuration data.
+ * @param   {object} res - The HTTP response object used to send back the validation
+ *                         status or an error message.
+ *
+ * @returns {void} - Sends a JSON response indicating whether the TTM Home path is
+ *                   correct or an error message if validation fails.
+ */
 router.post('/validateTTMHomeCorrectPath', async (req, res) => {
-  // Variables to store the SSH command output
-  let stdout = '';
-  let stderr = '';
-
-  // Loads configuration data
-  const config = await loadConfigFile();
-  const ttmHome = config.configData.TTMHome; // Gets the TTMHome path from the configuration
-
   try {
-    const conn = new Client(); // Initializes a new SSH client
-
-    // SSH connection is ready
-    conn.on('ready', () => {
-      // Executes the command to navigate to the TTMHome path and list its contents
-      conn.exec(`cd ${ttmHome} && ls`, (err, stream) => {
-        if (err) {
-          // Handles errors in command execution
-          console.error('Command execution error:', err);
-          return res.status(500).send('Command execution failed'); // Sends failure response
-        }
-
-        // Collects the standard output (stdout) from the command
-        stream.on('data', (data) => {
-          stdout += data.toString();
-        });
-
-        // Collects the standard error (stderr) from the command
-        stream.stderr.on('data', (data) => {
-          stderr += data.toString();
-        });
-
-        // Executes when the SSH command stream is closed
-        stream.on('close', (code, signal) => {
-          if (code !== 0) {
-            // If the command exits with a non-zero status, log and return error
-            console.error('TTM Home path is incorrect:', stderr);
-            return res
-              .status(500)
-              .send(
-                'TTM Home path is incorrect, please change on the configuration tab!'
-              );
-          }
-
-          // Verifies if the directory contains "WORK_DIR", indicating correctness
-          if (!stdout.includes('WORK_DIR')) {
-            return res
-              .status(500)
-              .json(
-                'TTM Home path is incorrect, please change on the configuration tab!'
-              );
-          }
-
-          // If the TTMHome path is correct, send success response
-          return res.status(200).json('TTM Home path is correct');
-        });
-      });
-    });
-
-    // Handles SSH connection errors
-    conn.on('error', (err) => {
-      console.error('SSH connection error:', err);
-      return res
-        .status(500)
-        .send(
-          'SSH connection failed, check connection details of TTM Environment'
-        );
-    });
-
-    // Connects to the remote server with provided SSH credentials
-    conn.connect({
-      host: config.configData.TTMhost, // SSH server hostname
-      port: config.configData.TTMport, // SSH port
-      username: config.configData.TTMusername, // SSH username
-      password: config.configData.TTMpassword, // SSH password
-    });
+    const config = await loadConfigFile();
+    const { TTMHome } = config.configData;
+    const response = await linuxConnectionClient(`cd ${TTMHome} && ls`);
+    if (response.code !== 0 || !response.stdout.includes('WORK_DIR')) {
+      return res.status(500).send(ERROR_MESSAGE);
+    }
+    res.status(200).json('TTM Home path is correct');
   } catch (error) {
-    // Handles unexpected errors in the entire try block
-    console.error('Unexpected error:', error);
-    return res.status(500).send('Unexpected error occurred');
+    res.status(500).json(error.errorMessage);
   }
 });
 
-module.exports = router; // Exports the router for use in other parts of the application
+/**
+ * @desc    Checks the connection to the TTM (Topological Task Manager) environment
+ *          by attempting to establish an SSH connection without executing any command.
+ *          This serves to verify that the connection details are correct and that the
+ *          environment is reachable.
+ * @access  Public
+ *
+ * @route   GET api/validation/checkEnvironmentConnection
+ *
+ * @param   {object} req - The HTTP request object (not used in this case).
+ * @param   {object} res - The HTTP response object used to send back the connection
+ *                         status or an error message.
+ *
+ * @returns {void} - Sends a JSON response indicating whether the connection was
+ *                   successful or an error message if the connection fails.
+ */
+router.get('/checkEnvironmentConnection', async (req, res) => {
+  try {
+    await linuxConnectionClient('');
+    res.status(200).json('Connection Succeeded!');
+  } catch (error) {
+    res.status(500).json(error.errorMessage);
+  }
+});
+
+router.get('/isEnvironmentObfuscated', async (req, res) => {
+  try {
+    const config = await loadConfigFile();
+    const { TTMHome } = config.configData;
+    const response = await linuxConnectionClient(
+      `cd ${TTMHome}../.obs/ && grep '^IS_ENV_OBFUSCATED=' obfs | cut -d'=' -f2`
+    );
+    res.status(200).json({ isEnvObfs: response.stdout.trim() });
+  } catch (error) {
+    res.status(500).json(error.errorMessage);
+  }
+});
+
+module.exports = router;

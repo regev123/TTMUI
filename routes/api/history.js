@@ -1,95 +1,86 @@
-const express = require('express'); // Importing the Express framework
-const router = express.Router(); // Creating a new router instance to define routes
-const { Client } = require('ssh2'); // Importing the Client class from the ssh2 module for SSH connections
-const loadConfigFile = require('./getConfigurationFile'); // Importing a function to load configuration files
+const express = require('express');
+const router = express.Router();
+const loadConfigFile = require('../../utils/getConfigurationFile');
+const linuxConnectionClient = require('../../utils/linuxConnectionClient');
 
-// Reusable SSH command execution function
-async function executeSSHCommand(res, command, config) {
-  let stdout = ''; // Initialize a variable to capture standard output
-  let stderr = ''; // Initialize a variable to capture standard error
-
-  try {
-    const conn = new Client(); // Create a new SSH client instance
-    conn.on('ready', () => {
-      // Event handler for when the SSH client is ready
-      conn.exec(command, (err, stream) => {
-        // Execute the provided command on the remote server
-        if (err) {
-          // Check for execution errors
-          console.error('Command execution error:', err); // Log the error
-          return res.status(500).send('Command execution failed'); // Respond with a 500 status
-        }
-
-        // Event handler for when the stream closes
-        stream.on('close', () => {
-          conn.end(); // Close the SSH connection
-          res.status(200).json({ stdout }); // Respond with the captured standard output
-        });
-
-        // Capture standard output data from the command execution
-        stream.stdout.on('data', (data) => {
-          stdout += data.toString(); // Append new data to stdout variable
-        });
-
-        // Capture standard error data from the command execution
-        stream.stderr.on('data', (data) => {
-          stderr += data.toString(); // Append new data to stderr variable
-        });
-      });
-    });
-
-    // Event handler for SSH connection errors
-    conn.on('error', (err) => {
-      console.error('SSH connection error:', err); // Log the connection error
-      res.status(500).send(
-        'SSH connection failed, check connection details to TTM environment' // Respond with a 500 status
-      );
-    });
-
-    // Connect to the SSH server using configuration details
-    conn.connect({
-      host: config.configData.TTMhost,
-      port: config.configData.TTMport,
-      username: config.configData.TTMusername,
-      password: config.configData.TTMpassword,
-    });
-  } catch (error) {
-    console.error('Unexpected error:', error); // Log unexpected errors
-    res.status(500).send('Unexpected error occurred'); // Respond with a 500 status
-  }
-}
-
-// Log list generation command template
-function generateLogListCommand(logType, config) {
-  return `
+/**
+ * @async
+ * @desc    Generates a command to list log files based on the specified log type.
+ * @access  Internal
+ *
+ * @param {string} logType - The type of logs to retrieve (e.g., 'Packager' or 'Deployer').
+ *
+ * @returns {Promise<string>} - A promise that resolves to the generated command string.
+ */
+async function generateLogListCommand(logType) {
+  const config = await loadConfigFile();
+  const command = `
     cd ${config.configData.TTMHome}WORK_DIR/ &&
     echo "[" &&
     find . -type f -name "MEC-${logType}*.log" | while read -r file; do
       echo "  {";
       echo "    \\"fileName\\": \\"$(basename "$file")\\","; 
       echo "    \\"fileContent\\": \\"$(sed ':a;N;$!ba;s/\\\\/\\\\\\\\/g;s/\\n/\\\\n/g;s/\\"/\\\\\\"/g' "$file")\\"";
-      echo "  },";
+      echo "  },"; 
     done | sed '$ s/,$//' &&
     echo "]"
   `;
+  return command.trim(); // Trim to remove any unnecessary whitespace
 }
 
-// @route    POST api/history/getPackagerLogList
-// @desc     Get the latest packager history log
-// @access   Public
-router.post('/getPackagerLogList', async (req, res) => {
-  const config = await loadConfigFile(); // Load configuration settings
-  const sshCommand = generateLogListCommand('Packager', config); // Generate the command for packager logs
-  executeSSHCommand(res, sshCommand, config); // Execute the SSH command
+/**
+ * @async
+ * @route   POST /api/history/getPackagerDeployerLogList
+ * @desc    Handles the request to get the list of packager or deployer logs based on the log type specified in the request body.
+ * @access  Public
+ *
+ * @param {Object} req - The request object containing the log type in the body.
+ * @param {Object} res - The response object used to send back the log list.
+ *
+ * @returns {Promise<void>} - A promise that resolves when the response is sent.
+ */
+router.post('/getPackagerDeployerLogList', async (req, res) => {
+  try {
+    const logType = req.body.type;
+
+    const historyCommand = await generateLogListCommand(logType);
+    const historyResponse = await linuxConnectionClient(historyCommand);
+
+    return res.status(200).json({ stdout: historyResponse.stdout });
+  } catch (error) {
+    console.error('Error fetching log list:', error);
+    return res.status(500).json({ error: 'Failed to retrieve log list' });
+  }
 });
 
-// @route    POST api/history/getDeployerLogList
-// @desc     Get the latest deployer history log
-// @access   Public
-router.post('/getDeployerLogList', async (req, res) => {
-  const config = await loadConfigFile(); // Load configuration settings
-  const sshCommand = generateLogListCommand('Deployer', config); // Generate the command for deployer logs
-  executeSSHCommand(res, sshCommand, config); // Execute the SSH command
+/**
+ * @route   DELETE /deleteSelectedLog/:logName
+ * @desc    Deletes a specified log file from the system based on the provided log name.
+ * @access  Public
+ *
+ * @param {Object} req - Express request object containing:
+ *   - {string} logName - The name of the log file to be deleted, passed as a URL parameter.
+ *
+ * @param {Object} res - Express response object
+ *
+ * @returns {Object} - JSON response with:
+ *   - {string} message - Success message if the file is deleted successfully
+ *   - {Object} error - An error message if the deletion fails
+ */
+router.delete('/deleteSelectedLog/:logName', async (req, res) => {
+  try {
+    const { logName } = req.params;
+    const config = await loadConfigFile();
+    const TTMHome = config.configData.TTMHome;
+    const command = `rm -f ${TTMHome}WORK_DIR/${logName}`;
+
+    await linuxConnectionClient(command);
+
+    return res.status(200).send('File Deleted');
+  } catch (error) {
+    console.error('Error fetching log list:', error);
+    return res.status(500).send('Failed to delete file');
+  }
 });
 
-module.exports = router; // Export the router for use in other modules
+module.exports = router;
