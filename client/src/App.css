@@ -1,20 +1,177 @@
-/* Importing the Poppins font from Google Fonts for use in the application */
+/* General styling for the entire page:
+   - Imports the 'Poppins' font to be used across the page.
+   - Resets margin, padding, and sets box-sizing to border-box to standardize styling across browsers. */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
-/* Applying the Poppins font to all elements in the application */
 * {
-  font-family: 'Poppins', sans-serif; /* Default font set to Poppins with sans-serif as fallback */
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-/* Styles for the sidebar with a fixed position on the page */
+/* Sidebar styling for a fixed position:
+      - Sets the width of the sidebar to 260px and shifts the main content to the right by the same amount. */
 .page-fixed-position-sidebar {
-  width: calc(
-    100% - 260px
-  ); /* Setting width to 100% minus 260px (the width of the sidebar) */
-  margin-left: 260px; /* Adding left margin to create space for the sidebar */
+  width: calc(100% - 260px);
+  margin-left: 260px;
 }
 
-/* Styles for main heading (h1) */
+/* Main header styling h1:
+      - Applies a dark gray color, large font size (2rem), and bold font weight.
+      - Adds a subtle text-shadow for a lifted effect, making the header stand out. */
 h1 {
-  color: black; /* Setting the text color of h1 elements to black */
+  color: #333;
+  font-size: 2rem;
+  font-weight: 700;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+/* Main header styling h2:
+      - Applies a dark gray color, medium font size (18px), and medium font weight.
+      - Adds a subtle text-shadow for a lifted effect, making the header stand out. */
+h2 {
+  margin-top: 10px;
+  color: #333;
+  font-size: 18px;
+  font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Alert box styling:
+      - Adds margin around alert box and uses a font size of 1.5rem for prominence.
+      - Sets font-weight to 600 for clear emphasis on the message. */
+.global-page-alert {
+  margin: 15px 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Success message styling:
+      - Green color used to indicate success with a slight font-weight increase for readability. */
+.success {
+  color: #28a745;
+  font-weight: 500;
+}
+
+/* Failure message styling:
+      - Red color used to indicate failure with a slight font-weight increase for readability. */
+.failed {
+  color: #d9534f;
+  font-weight: 500;
+}
+
+/* Default message styling:
+      - Standard text color used for all message-related elements. */
+.message {
+  color: #333;
+}
+
+/* Page container styling:
+      - Adds padding, sets height to 100% of viewport, and uses a background gradient for a subtle, clean look.
+      - Implements rounded corners, shadow effects for depth, and overall flexbox structure for layout consistency. */
+.page-container {
+  padding: 20px 8%;
+  height: 100vh;
+  overflow-y: auto;
+  background: linear-gradient(135deg, #d1d8e0, #b8c2d1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 10px 20px rgba(0, 0, 0, 0.15),
+    0 18px 36px rgba(0, 0, 0, 0.2);
+  font-family: 'Poppins', sans-serif;
+  color: #2a2a2a;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Hover effect for the page container:
+      - On hover, increases the shadow size to make the container appear as if it’s lifting off the page, adding interactivity. */
+.page-container:hover {
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1), 0 12px 24px rgba(0, 0, 0, 0.2),
+    0 24px 48px rgba(0, 0, 0, 0.3);
+}
+
+/* Component container styling:
+      - Adds spacing on top and uses a white background for the content area.
+      - Implements rounded corners and padding for a clean and spacious feel. */
+.component-container {
+  margin-top: 30px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Information title styling:
+      - Sets a font size of 1.2rem with a semi-bold weight for clear emphasis.
+      - Adds bottom margin to provide spacing between the title and the content below. */
+.info-title {
+  color: #333;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* Form container styling:
+      - Uses flexbox layout with wrapping for responsiveness.
+      - Justifies content between items and provides a 20px gap for better spacing and alignment. */
+.form-style {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+/* Icon styling:
+   - Sets the height of the icon to 50px for consistent size.
+   - Minimum width is set to 28px, ensuring it remains appropriately sized even on smaller screens.
+   - The line-height is set to 50px to vertically center the text inside the icon.
+   - Text is aligned centrally within the icon container.
+   - Font size is set to 20px for better visibility and impact.
+   - The color of the icon is set to black for maximum contrast and visibility.
+   - Adds a margin on the top to create space between the icon and other elements.
+   - Smooth transition applied to all properties, providing a subtle animation effect when interacting with the icon. */
+.icon-style {
+  height: 50px;
+  min-width: 28px;
+  line-height: 50px;
+  text-align: center;
+  font-size: 28px;
+  color: black;
+  margin-top: 35px;
+  transition: all 0.3s ease;
+}
+.icon-style-failed {
+  height: 50px;
+  min-width: 28px;
+  line-height: 50px;
+  text-align: center;
+  font-size: 28px;
+  color: red;
+  margin-top: 35px;
+  transition: all 0.3s ease;
+}
+.icon-style-success {
+  height: 50px;
+  min-width: 28px;
+  line-height: 50px;
+  text-align: center;
+  font-size: 28px;
+  color: green;
+  margin-top: 35px;
+  transition: all 0.3s ease;
+}
+
+/* Styling for elements arranged in a single line:
+   - Applies flexbox layout to keep elements in a row.
+   - Prevents wrapping of items by setting `flex-wrap: nowrap`.
+   - Adds a 25px gap between items for clear separation.
+   - Aligns the items vertically in the center for balanced positioning. */
+.elements-in-one-line {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 25px;
+  align-items: center;
 }

@@ -1,40 +1,54 @@
-import React from 'react'; // Importing React library to use React features
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'; // Importing routing components from react-router-dom
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import './App.css';
+import Sidebar from './components/layout/Sidebar';
+import { Provider } from 'react-redux';
+import store from './store';
+import { checkTTMEnvironmentConfiguration } from './actions/TTMEnvDetails';
+import { checkIsEnvironmentObfuscated } from './actions/Obfuscation';
+import { getExistingClientsArray } from './actions/ExsitingClients';
+import Spinner from './components/layout/Spinner';
+import AppRoutes from './AppRoutes';
 
-import './App.css'; // Importing CSS styles for the application
-import Sidebar from './components/layout/Sidebar'; // Importing the Sidebar component for navigation
-import Packager from './pages/packager/Packager'; // Importing the Packager page component
-import Deployer from './pages/deployer/Deployer'; // Importing the Deployer page component
-import Configuration from './pages/configuration/Configuration'; // Importing the Configuration page component
-import MECProfile from './pages/MECProfile/MECProfile'; // Importing the MECProfile page component
-import Installation from './pages/installation/installation'; // Importing the Installation page component
-import History from './pages/history/History'; // Importing the History page component
-import EnvironmentValidation from './pages/environmentValidation/EnvironmentValidation'; // Importing the Environment Validation page component
+/**
+ * @component App
+ * @desc    Main application component responsible for initializing the app, managing loading states,
+ *          and rendering core layout components such as Sidebar and AppRoutes.
+ *          It also dispatches an action to check the environment configuration on load.
+ * @access  Public
+ *
+ * Internal State:
+ * - isLoading (boolean): Tracks whether the initial environment configuration check is still loading.
+ *
+ * Internal Effects:
+ * - useEffect: Triggers the environment configuration check upon component mount,
+ *              and updates `isLoading` once completed.
+ *
+ * @returns {JSX.Element} - The root component that provides the Redux store, renders the Sidebar, and manages route rendering.
+ */
+const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
 
-// Main App component that sets up routing and layout for the application
-const App = () => (
-  <Router>
-    {' '}
-    {/* Wrapping the application in Router to enable routing */}
-    <Sidebar /> {/* Rendering the Sidebar for navigation links */}
-    <Routes>
-      {' '}
-      {/* Defining routes for the application */}
-      {/* Each Route maps a path to a component to be rendered */}
-      <Route exact path='/Packager' element={<Packager />} />
-      <Route exact path='/Deployer' element={<Deployer />} />
-      <Route exact path='/Configuration' element={<Configuration />} />
-      <Route exact path='/MECProfile' element={<MECProfile />} />
-      <Route exact path='/Installation' element={<Installation />} />
-      <Route exact path='/History' element={<History />} />
-      <Route
-        exact
-        path='/EnvironmentValidation'
-        element={<EnvironmentValidation />}
-      />
-    </Routes>
-  </Router>
-);
+  useEffect(() => {
+    const fetchData = async () => {
+      await store.dispatch(checkTTMEnvironmentConfiguration());
+      await store.dispatch(checkIsEnvironmentObfuscated());
+      await store.dispatch(getExistingClientsArray());
+      setIsLoading(false);
+    };
+    fetchData();
+  }, []);
 
-// Exporting the App component as the default export for use in other parts of the application
+  if (isLoading) return <Spinner />;
+
+  return (
+    <Provider store={store}>
+      <Router>
+        <Sidebar />
+        <AppRoutes />
+      </Router>
+    </Provider>
+  );
+};
+
 export default App;
