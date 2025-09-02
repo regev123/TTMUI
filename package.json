@@ -6,22 +6,28 @@
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "nodemon server.js",
+    "prod": "node server.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.7.9",
     "concurrently": "^8.2.2",
     "config": "^3.3.12",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
     "nodemon": "^3.1.4",
     "open": "^10.1.0",
     "ssh2": "^1.15.0",
+    "ssh2-sftp-client": "^11.0.0",
     "uuid": "^10.0.0",
     "ws": "^8.18.0"
   },
   "pkg": {
+    "scripts": "server.js",
     "assets": [
       "client/build/**/*",
       "client/build/static/**/*"
