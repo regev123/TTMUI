@@ -1,0 +1,18 @@
+[
+  {
+    "version": "10.24.0.0",
+    "URL": "http://illin3301:28080/nexus/service/local/repositories/amd-core-fnd-Releases/content/com/amdocs/mec/packager/10.24.0.0/2024052607/10.24.0.0-2024052607.tar",
+    "tarName": "10.24.0.0-2024052607.tar",
+    "xpiName": "xpi-packaging-9.22.1.0.tar",
+    "jarName": "ttm-packager-10.24.0.0-general-package-2024052607.jar",
+    "obfuscationTar": "obfuscation-migration-tool-9.22.0.1.tar"
+  },
+  {
+    "version": "9.22.0.0",
+    "URL": "http://illin3301:28080/nexus/service/local/repositories/amd-core-fnd-Releases/content/com/amdocs/mec/packager/9.22.0.0/2024072911/9.22.0.0-2024072911.tar",
+    "tarName": "9.22.0.0-2024072911.tar",
+    "xpiName": "xpi-packaging-9.22.0.8.tar",
+    "jarName": "ttm-packager-9.22.0.0-general-package-2024072911.jar",
+    "obfuscationTar": "obfuscation-migration-tool-9.22.0.ED.tar"
+  }
+]
