@@ -1,53 +1,142 @@
-import React from 'react'; // Import React library for building the component
-import { Link } from 'react-router-dom'; // Import Link for client-side routing
-import './Sidebar.css'; // Import CSS styles for the sidebar
+import React from 'react';
+import { Link } from 'react-router-dom';
+import './Sidebar.css';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
-// Define an array of sidebar items, each with a route, icon, and label
-const sidebarItems = [
-  { to: '/packager', icon: 'bx-package', label: 'Packager' },
-  { to: '/deployer', icon: 'bx-send', label: 'Deployer' },
-  { to: '/Configuration', icon: 'bx-cog', label: 'TTM Environment' },
-  { to: '/MECProfile', icon: 'bx-user-pin', label: 'MEC Profile' },
-  { to: '/Installation', icon: 'bx-log-in-circle', label: 'Installation' },
-  { to: '/History', icon: 'bx-history', label: 'History' },
+const SIDEBAR_ITEMS = [
+  { path: '/TTMEnvironment', iconClass: 'bx-cog', label: 'TTM Environment' },
   {
-    to: '/EnvironmentValidation',
-    icon: 'bx-list-check',
+    path: '/Installation',
+    iconClass: 'bx-log-in-circle',
+    label: 'Installation',
+  },
+  { path: '/Profiles', iconClass: 'bx-user-pin', label: 'Profiles' },
+  {
+    path: '/EnvironmentValidation',
+    iconClass: 'bx-list-check',
     label: 'Environment Validation',
   },
+  { path: '/packager', iconClass: 'bx-package', label: 'Packager' },
+  { path: '/deployer', iconClass: 'bx-send', label: 'Deployer' },
+  { path: '/LogHistory', iconClass: 'bx-history', label: 'Log History' },
+  { path: '/obfuscation', iconClass: 'bx-lock-open-alt', label: 'Obfuscation' },
 ];
 
-// Define the Sidebar component
-const Sidebar = () => {
+/**
+ * @function Sidebar
+ * @desc    Renders the Sidebar component that includes the sidebar header and list of sidebar items.
+ * @access  Public
+ *
+ * @returns {JSX.Element} - The rendered Sidebar component containing the header and list of navigation items.
+ */
+const Sidebar = ({
+  EnvironmentConncetionSuccess,
+  EnvironmentHomePathValid,
+}) => {
+  const isDisabledTTMConncetionFailed = !EnvironmentConncetionSuccess;
+  const isDisabledTTMHomePathInvalid = !EnvironmentHomePathValid;
+
   return (
     <div className='warpper-sidebar'>
-      {' '}
-      {/* Wrapper for the sidebar */}
-      <h2 className='sidebar-subject'>TTM-Web</h2> {/* Title of the sidebar */}
-      <ul className='sidebar-list'>
-        {' '}
-        {/* Unordered list for sidebar items */}
-        {sidebarItems.map(
-          (
-            item // Map over sidebarItems array to create list items
-          ) => (
-            <li key={item.to}>
-              {' '}
-              {/* Use the route as a unique key */}
-              <Link className='sidebar-link-name' to={item.to}>
-                {' '}
-                {/* Link for navigation */}
-                <i className={`bx ${item.icon}`}></i>{' '}
-                {/* Icon for the sidebar item */}
-                {item.label} {/* Label text for the sidebar item */}
-              </Link>
-            </li>
-          )
-        )}
-      </ul>
+      <SidebarHeader />
+      <SidebarItems
+        items={SIDEBAR_ITEMS}
+        isDisabledTTMConncetionFailed={isDisabledTTMConncetionFailed}
+        isDisabledTTMHomePathInvalid={isDisabledTTMHomePathInvalid}
+      />
     </div>
   );
 };
 
-// Export the Sidebar component for use in other parts of the application
-export default Sidebar;
+/**
+ * @function SidebarHeader
+ * @desc    Renders the header of the sidebar with the title "TTM UI" and a store icon.
+ * @access  Private
+ *
+ * @returns {JSX.Element} - The rendered sidebar header.
+ */
+const SidebarHeader = () => (
+  <h2 className='sidebar-subject'>
+    TTM UI <i className='bx bxs-store'></i>
+  </h2>
+);
+
+/**
+ * @function SidebarItems
+ * @desc    Renders the list of sidebar items.
+ * @access  Private
+ *
+ * @param {Array} items - The list of items to be rendered in the sidebar.
+ *
+ * @returns {JSX.Element} - The rendered list of sidebar items.
+ */
+const SidebarItems = ({
+  items,
+  isDisabledTTMConncetionFailed,
+  isDisabledTTMHomePathInvalid,
+}) => (
+  <ul className='sidebar-list'>
+    {items.map((item) => (
+      <SidebarItem
+        key={item.path}
+        item={item}
+        isDisabledTTMConncetionFailed={isDisabledTTMConncetionFailed}
+        isDisabledTTMHomePathInvalid={isDisabledTTMHomePathInvalid}
+      />
+    ))}
+  </ul>
+);
+
+/**
+ * @function SidebarItem
+ * @desc    Renders an individual item in the sidebar with a link, icon, and label.
+ * @access  Private
+ *
+ * @param {Object} item - The item object containing path, icon, and label for the sidebar item.
+ *
+ * @returns {JSX.Element} - The rendered sidebar item with a link.
+ */
+const SidebarItem = ({
+  item,
+  isDisabledTTMConncetionFailed,
+  isDisabledTTMHomePathInvalid,
+}) => {
+  const shouldDisable =
+    (isDisabledTTMConncetionFailed && item.path !== '/TTMEnvironment') ||
+    (isDisabledTTMHomePathInvalid &&
+      item.path !== '/TTMEnvironment' &&
+      item.path !== '/Installation');
+
+  const handleClick = (e) => {
+    if (isDisabledTTMConncetionFailed) {
+      e.preventDefault();
+    }
+  };
+
+  return (
+    <li>
+      <Link
+        className={`sidebar-link-name ${shouldDisable ? 'disabled' : ''}`}
+        to={item.path}
+        onClick={handleClick}
+      >
+        <i className={`bx ${item.iconClass}`}></i>
+        {item.label}
+      </Link>
+    </li>
+  );
+};
+
+Sidebar.propTypes = {
+  EnvironmentConncetionSuccess: PropTypes.bool.isRequired,
+  EnvironmentHomePathValid: PropTypes.bool.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  EnvironmentConncetionSuccess:
+    state.TTMEnvironment.EnvironmentConncetionSuccess,
+  EnvironmentHomePathValid: state.TTMEnvironment.EnvironmentHomePathValid,
+});
+
+export default connect(mapStateToProps, {})(Sidebar);

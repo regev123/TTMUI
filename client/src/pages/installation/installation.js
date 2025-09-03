@@ -1,231 +1,269 @@
-import React, { useState } from 'react';
-import './installation.css';
-import api from '../../utils/api'; // Utility to handle API calls
-import ABP from './clients/ABP'; // Client-specific forms
-import OMS from './clients/OMS';
-import OMS_SE from './clients/OMS_SE';
-import MCSS_SE from './clients/MCSS_SE';
-import ACPE from './clients/ACPE';
-
+import React, { useState, useEffect } from 'react';
+import Dropdown from '../../components/common/Dropdown';
+import Spinner from '../../components/layout/Spinner';
+import ClientConfig from './ClientsConfig';
+import getInstallationsVersions from '../../hooks/fetchData/useFetchInstallationConfiguration';
+import Checkbox from '../../components/common/Checkbox';
+import InputField from '../../components/common/InputField';
+import Button from '../../components/common/Button';
+import SpinIcon from '../../components/common/SpinIcon';
+import AlertMessage from '../../components/common/AlertMessage';
+import install from '../../hooks/submitHandlers/handleSubmitInstallation';
+import FileUploader from '../../components/common/FileUploader';
+import FileUpload from '../../hooks/submitHandlers/handleSubmitFileUpload';
+/**
+ * @component Installation
+ * @desc    Manages the installation process by providing UI for selecting the installation version,
+ *          choosing client configurations, and initiating the installation. It handles form submission,
+ *          loading state management, and displays alerts based on the installation result.
+ * @access  Public
+ *
+ * @returns {JSX.Element} - The JSX structure for the Installation Manager UI, including client selection,
+ *                          configuration fields, and installation button.
+ *
+ * Internal Function Descriptions:
+ *
+ * handleClientToggle - Toggles the checked state of a client, enabling or disabling its inclusion in the installation.
+ * handleFormChange - Updates the configuration data for a selected client.
+ * toggleOverrideDataPumpFile - Toggles the override option for the data pump file.
+ * handleFormDataChange - Updates generic form data, such as the remote DB user.
+ * handleSubmit - Initiates the installation process by calling the `install` function.
+ */
 const Installation = () => {
-  // State to track which clients are selected (true/false)
-  const [clientChecks, setClientChecks] = useState({
-    ABP: false,
-    OMS: false,
-    OMS_SE: false,
-    MCSS_SE: false,
-    ACPE: false,
-  });
+  const [pageAlert, setPageAlert] = useState('');
+  const [installationVersions, setInstallationVersions] = useState([]);
+  const [selectedInstallationVersion, setSelectedInstallationVersion] =
+    useState('');
+  const [loading, setLoading] = useState(initialLoadingState);
+  const [loadingUploadFile, setLoadingUploadFile] = useState(false);
+  const [clientChecks, setClientChecks] = useState(initialClientChecks);
+  const [formData, setFormData] = useState(initialFormData);
+  const [tarOnEnvironment, setTarOnEnvironment] = useState(false);
 
-  // State for tracking the installation process (loading state)
-  const [installing, setInstalling] = useState(false);
-  // State for installation status messages
-  const [requestStatus, setRequestStatus] = useState('');
-  // State to track if overriding data pump file should be enabled
-  const [overrideDataPumpFile, setOverrideDataPumpFile] = useState(true);
-  // State for the remote DB user, initialized with default value
-  const [remoteDBUser, setRemoteDBUser] = useState('oradp');
+  useEffect(() => {
+    getInstallationsVersions(setLoading, setInstallationVersions, setPageAlert);
+  }, []);
 
-  // Initial form structure shared by all clients
-  const initialFormData = {
-    ORACLE_DATA_PUMP_DIR: 'DP_DMP_EPCT',
-    ORACLE_DATA_PUMP_DIR_PATH: '',
-    SRC_DB_USER: '',
-    SRC_DB_PASSWORD: '',
-    SRC_DB_INSTANCE: '',
-    TRG_DB_CONN_STRING: '',
-  };
-
-  // State to manage form data for each client. Each client gets its own copy of initialFormData.
-  const [formData, setFormData] = useState({
-    ABP: { ...initialFormData },
-    OMS: { ...initialFormData },
-    OMS_SE: { ...initialFormData },
-    MCSS_SE: { ...initialFormData },
-    ACPE: { ...initialFormData },
-  });
-
-  // Toggle the check status for a specific client
   const handleClientToggle = (client) => {
     setClientChecks((prev) => ({
       ...prev,
-      [client]: !prev[client], // Flip the selected client value (true/false)
+      [client]: !prev[client],
     }));
   };
 
-  // Update the form data for a specific client dynamically
   const handleFormChange = (client, updatedData) => {
     setFormData((prev) => ({
       ...prev,
-      [client]: { ...prev[client], ...updatedData }, // Merge updated data into the specific client's form
+      [client]: { ...prev[client], ...updatedData },
     }));
   };
 
-  // Validate that all form fields for a specific client are filled in
-  const validateClientForm = (clientData) => {
-    console.log(formData); // Log current form data for debugging
-    return Object.values(clientData).every((value) => value !== ''); // Ensure no form fields are empty
+  const toggleOverrideDataPumpFile = () => {
+    setFormData((prevState) => ({
+      ...prevState,
+      overrideDataPumpFile: !prevState.overrideDataPumpFile,
+    }));
   };
 
-  function validateUserPasswordInstance(input) {
-    const pattern = /^[A-Za-z0-9_]+\/[A-Za-z0-9_]+@[A-Za-z0-9_]+$/;
-    return pattern.test(input);
-  }
+  const toggleTarOnEnvironment = () => {
+    setTarOnEnvironment((prevState) => !prevState);
+  };
 
-  // Handle form submission
+  const handleFormDataChange = (name, value) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior
-
-    // Validation: Ensure remoteDBUser is not empty
-    if (!remoteDBUser) {
-      alert('Remote DB User is required.');
-      return; // Exit early if validation fails
-    }
-
-    const clients = []; // Array to collect selected clients
-
-    // Loop through all clients, validate forms for selected ones
-    for (const client of Object.keys(clientChecks)) {
-      //Remove all Whitespace from the variables
-      if (clientChecks[client]) {
-        Object.entries(formData[client]).forEach(([key, value]) => {
-          formData[client][key] = value.replace(/\s+/g, '');
-        });
-        // If the client is selected
-        if (!validateClientForm(formData[client])) {
-          // Validate the form
-          alert(`All ${client} fields are required.`); // Show error if validation fails
-          return; // Exit early if form validation fails
-        }
-
-        if (
-          !validateUserPasswordInstance(formData[client].TRG_DB_CONN_STRING)
-        ) {
-          alert(
-            `${client} Target DB Connection String must be in this structure({DB_USER}/{DB_PASSWORD}@{DB_INSTANCE})`
-          );
-          return;
-        }
-        clients.push(client); // Add validated client to the list
-      }
-    }
-
-    // Prepare request payload with all necessary data
-    const body = {
-      overrideDataPumpFile,
-      remoteDBUser,
-      clients,
+    install(
+      e,
+      setPageAlert,
+      setLoading,
       formData,
-    };
-
-    setInstalling(true); // Set installing state to true while the request is in progress
-    try {
-      const res = await api.post('/installation/install', body); // Send POST request to server
-      // Update status based on the response
-      setRequestStatus(
-        res.status === 200
-          ? 'Installation finished successfully'
-          : 'Installation failed'
-      );
-    } catch (error) {
-      setRequestStatus('Installation failed'); // Handle error response
-    } finally {
-      setInstalling(false); // Reset installing state after request is complete
-    }
+      installationVersions,
+      selectedInstallationVersion,
+      clientChecks,
+      tarOnEnvironment
+    );
   };
 
-  // Map client names to their corresponding components
-  const clientComponents = {
-    ABP: ABP,
-    OMS: OMS,
-    OMS_SE: OMS_SE,
-    MCSS_SE: MCSS_SE,
-    ACPE: ACPE,
+  const handleFileUpload = async (file) => {
+    FileUpload(file, setLoadingUploadFile);
   };
+
+  if (loading.loadinginstallationVersions) {
+    return <Spinner />;
+  }
 
   return (
     <div className='page-fixed-position-sidebar'>
-      <div className='installation-page-container'>
-        <div className='installation-page-clients-container'>
-          <div className='installation-page-clients-title'>
-            <h1>Environment Configuration</h1>
-            <div className='installation-page-clients-checkbox'>
-              <label>
-                <input
-                  type='checkbox'
-                  checked={overrideDataPumpFile}
-                  onChange={() =>
-                    setOverrideDataPumpFile(!overrideDataPumpFile)
-                  } // Toggle override data pump file setting
-                />
-                Override data pump file
-              </label>
-            </div>
-            <div className='installation-page-remote-db-user-input'>
-              <span className='installation-page-remote-db-user-input-title'>
-                Remote DB User *
-              </span>
-              <input
-                value={remoteDBUser}
-                name='remoteDBUser'
-                onChange={(e) => setRemoteDBUser(e.target.value)} // Update remote DB user state
-                type='text'
-                required
+      <div className='page-container'>
+        <AlertMessage
+          message={pageAlert}
+          isSuccess={pageAlert === 'Installation finished successfully'}
+        />
+
+        <Section title='Environment Configuration'>
+          <Dropdown
+            selected={selectedInstallationVersion}
+            setSelected={setSelectedInstallationVersion}
+            options={installationVersions.map((item) => item.version)}
+            title='Select version to install'
+          />
+          <Checkbox
+            label='Tar on Environment'
+            checked={tarOnEnvironment}
+            onChange={toggleTarOnEnvironment}
+          />
+          <div className='elements-in-one-line'>
+            {tarOnEnvironment && <FileUploader onUpload={handleFileUpload} />}
+            {loadingUploadFile && <SpinIcon />}
+          </div>
+          <Checkbox
+            label='Override data pump file'
+            checked={formData.overrideDataPumpFile}
+            onChange={toggleOverrideDataPumpFile}
+          />
+          <InputField
+            name='remoteDBUser'
+            title='Remote DB User *'
+            value={formData.remoteDBUser}
+            onChange={handleFormDataChange}
+          />
+        </Section>
+
+        <Section title='Choose clients'>
+          <div className='elements-in-one-line'>
+            {Object.keys(clientChecks).map((client) => (
+              <Checkbox
+                key={client}
+                label={client}
+                checked={clientChecks[client]}
+                onChange={() => handleClientToggle(client)}
               />
-            </div>
+            ))}
           </div>
-        </div>
+        </Section>
 
-        <div className='installation-page-clients-container'>
-          <div className='installation-page-clients-title'>
-            <h1>Choose clients</h1>
-            <h1>{requestStatus}</h1> {/* Show installation status */}
-            <div className='installation-page-clients-checkbox'>
-              {Object.keys(clientChecks).map((client) => (
-                <label key={client}>
-                  <input
-                    type='checkbox'
-                    checked={clientChecks[client]} // Check if the client is selected
-                    onChange={() => handleClientToggle(client)} // Toggle client selection
-                  />
-                  {client}
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
+        {renderClientConfigs(clientChecks, formData, handleFormChange)}
 
-        {Object.keys(clientChecks).map((client) =>
-          clientChecks[client]
-            ? React.createElement(clientComponents[client], {
-                key: client,
-                [`${client}formData`]: formData[client], // Pass form data to child component
-                [`set${client}FormData`]: (updatedData) =>
-                  handleFormChange(client, updatedData), // Pass state update handler to child
-              })
-            : null
-        )}
-
-        {/* Show submit button only if at least one client is selected */}
-        {Object.values(clientChecks).some((checked) => checked) && (
-          <div className='configuration-page-box-submit'>
-            <button
-              onClick={handleSubmit} // Handle form submission
-              className={
-                installing
-                  ? 'configuration-page-box-input-button-disabled'
-                  : 'configuration-page-box-input-button'
-              }
-              disabled={installing} // Disable button during installation process
-            >
-              {installing ? 'Installing...' : 'Install'}{' '}
-              {/* Show loading state */}
-            </button>
-          </div>
+        {renderInstallButton(
+          loading,
+          handleSubmit,
+          clientChecks,
+          loadingUploadFile
         )}
       </div>
     </div>
   );
+};
+
+/**
+ * @function Section
+ * @desc Renders a section with a title and children elements. Used to group UI components for clarity.
+ * @param {string} title - The title for the section.
+ * @param {JSX.Element} children - The content to be displayed inside the section.
+ * @returns {JSX.Element} The section containing the title and children elements.
+ */
+const Section = ({ title, children }) => (
+  <div className='component-container'>
+    <h1>{title}</h1>
+    {children}
+  </div>
+);
+
+/**
+ * @function renderClientConfigs
+ * @desc Conditionally renders the ClientConfig component for each selected client. It ensures that only clients
+ *       with a checked state are rendered for configuration.
+ * @param {Object} clientChecks - The selected clients (which clients are checked).
+ * @param {Object} formData - The form data for each client.
+ * @param {function} handleFormChange - Function to handle changes in client-specific form data.
+ * @returns {JSX.Element[]} An array of ClientConfig components for each selected client.
+ */
+const renderClientConfigs = (clientChecks, formData, handleFormChange) => {
+  return Object.keys(clientChecks).map(
+    (client) =>
+      clientChecks[client] && (
+        <ClientConfig
+          key={client}
+          clientType={client}
+          clientFormData={formData[client]}
+          setClientFormData={(updatedData) =>
+            handleFormChange(client, updatedData)
+          }
+        />
+      )
+  );
+};
+
+/**
+ * @function renderInstallButton
+ * @desc Conditionally renders the install button based on client selection and loading state.
+ *       If no clients are selected or if installation is in progress, the button is disabled.
+ * @param {Object} loading - The current loading state (e.g., installation in progress).
+ * @param {function} handleSubmit - Function to handle form submission when the install button is clicked.
+ * @param {Object} clientChecks - The selected clients (whether each client is checked).
+ * @returns {JSX.Element|null} The install button, or null if no clients are selected.
+ */
+const renderInstallButton = (
+  loading,
+  handleSubmit,
+  clientChecks,
+  loadingUploadFile
+) => {
+  const isAnyClientSelected = Object.values(clientChecks).some(
+    (checked) => checked
+  );
+
+  return isAnyClientSelected ? (
+    <Button
+      onClick={handleSubmit}
+      title={loading.installing ? 'Installing...' : 'Install'}
+      disabled={
+        loading.installing || loading.disableSubmit || loadingUploadFile
+      }
+      fullWidth={true}
+    />
+  ) : null;
+};
+
+// Initial states for the installation process
+const initialLoadingState = {
+  loadinginstallationVersions: true,
+  loadingCheckEnvironmentConnection: true,
+  installing: false,
+  disableSubmit: false,
+};
+
+// Initial state for client selection checkboxes (whether each client is selected)
+const initialClientChecks = {
+  ABP: false,
+  OMS: false,
+  OMS_SE: false,
+  MCSS_SE: false,
+  ACPE: false,
+};
+
+// Initial state for client configuration form data
+const initialClientsFormData = {
+  ORACLE_DATA_PUMP_DIR: 'DP_DMP_EPCT',
+  ORACLE_DATA_PUMP_DIR_PATH: '',
+  SRC_DB_CONN_STRING: '',
+  TRG_DB_CONN_STRING: '',
+};
+
+// Initial form data, including override settings and default client configurations
+const initialFormData = {
+  overrideDataPumpFile: true,
+  remoteDBUser: 'oradp',
+  ABP: { ...initialClientsFormData },
+  OMS: { ...initialClientsFormData },
+  OMS_SE: { ...initialClientsFormData },
+  MCSS_SE: { ...initialClientsFormData },
+  ACPE: { ...initialClientsFormData },
 };
 
 export default Installation;

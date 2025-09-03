@@ -1,33 +1,59 @@
-/* Container for the toggle button, centers its content */
+/* Toggle container with a sleek background, rounded shape, and shadow:
+   - Centers content horizontally and vertically with flexbox.
+   - Rounded corners and subtle shadow for a modern, soft appearance.
+   - Light gray border and background for a clean look.
+   - Sets a fixed width of 220px and hides overflow for a consistent shape.
+   - Smooth background-color transition for interactive responsiveness. */
 .toggle-button {
-  display: flex; /* Use flexbox for alignment */
-  justify-content: center; /* Center items horizontally */
-  align-items: center; /* Center items vertically */
-  border-radius: 4px; /* Rounded corners */
-  border: 1px solid #ccc; /* Light gray border */
-  background-color: #f9f9f9; /* Light background color */
-  width: 200px; /* Fixed width */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 30px;
+  border: 1px solid #ddd;
+  background-color: #f1f1f1;
+  width: 220px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: background-color 0.3s;
 }
 
-/* Styles for the individual toggle buttons */
+/* Individual toggle button styling:
+     - Distributes space equally between buttons with flex: 1.
+     - Padding provides inner spacing, creating a balanced look.
+     - Soft gray text color for a modern, minimalistic appearance.
+     - Font-size and weight for readability and prominence.
+     - Smooth color transition on hover for interactive feedback. */
 .toggle-btn {
-  flex: 1; /* Take equal space in the flex container */
-  padding: 10px; /* Padding for inner spacing */
-  border: none; /* Remove default border */
-  background: none; /* Remove default background */
-  cursor: pointer; /* Change cursor to pointer on hover */
-  font-size: 16px; /* Font size for button text */
-  color: #555; /* Dark gray text color */
-  transition: background-color 0.3s, color 0.3s; /* Smooth transitions for background and text color */
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #666;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: color 0.3s;
 }
 
-/* Styles for the active toggle button */
+/* Active toggle button style:
+     - Blue background and white text for contrast and emphasis on active selection.
+     - Border-radius creates a rounded shape, adding a polished look.
+     - Subtle inset shadow for depth, highlighting the active state.
+     - Smooth transitions on background-color and text color for a seamless switch. */
 .toggle-btn.active {
-  background-color: #007bff; /* Blue background for active button */
-  color: white; /* White text for better contrast */
+  background-color: #4a90e2;
+  color: #fff;
+  border-radius: 30px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, color 0.3s;
 }
 
-/* Styles for the toggle button on hover when not active */
+/* Hover effect for inactive toggle buttons:
+     - Darkens text color and adds a light gray background for a soft highlight on hover.
+     - Rounded corners and smooth transitions create an interactive, refined experience. */
 .toggle-btn:not(.active):hover {
-  background-color: #e0e0e0; /* Light gray background on hover */
+  color: #333;
+  background-color: #eaeaea;
+  border-radius: 20px;
+  transition: background-color 0.3s, color 0.3s;
 }

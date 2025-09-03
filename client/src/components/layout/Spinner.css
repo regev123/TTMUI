@@ -1,67 +1,91 @@
-/* Wrapper for the spinner component */
+/* Wrapper for the spinner:
+   - Uses flexbox to center the spinner both vertically and horizontally within the viewport.
+   - Applies a gradient background for a subtle, modern appearance.
+   - Ensures the wrapper takes up the full height of the viewport with 100vh. */
 .wrapper-spinner {
-  margin: 0; /* Remove default margin */
-  padding: 0; /* Remove default padding */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #d1d8e0, #b8c2d1);
+  margin: 0;
+  padding: 0;
 }
 
-/* Center the spinner within the viewport */
-.center-spiner {
-  display: flex; /* Use flexbox for alignment */
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  min-height: 100vh; /* Full viewport height */
+/* Center the spinner container:
+     - Utilizes flexbox to center items vertically.
+     - Aligns the spinner in a column layout and centers it horizontally. */
+.center-spinner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-/* Style for the ring spinner */
+/* Ring spinner styling:
+     - Defines the size of the spinner with width and height set to 100px.
+     - Applies a transparent border with a solid top and right side in a blue shade for the spinner's ring.
+     - Animates the spinner with a continuous rotation via keyframes.
+     - Adds a soft box-shadow around the spinner for a glowing effect. */
 .ring-spinner {
-  position: absolute; /* Position relative to the closest positioned ancestor */
-  width: 200px; /* Set fixed width */
-  height: 200px; /* Set fixed height */
-  border-radius: 50%; /* Create a circular shape */
-  animation: ring-spinner 2s linear infinite; /* Infinite rotation animation */
+  width: 100px;
+  height: 100px;
+  border: 8px solid transparent;
+  border-top: 8px solid #4a90e2;
+  border-right: 8px solid #4a90e2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  box-shadow: 0 0 20px rgba(74, 144, 226, 0.3);
 }
 
-/* Keyframes for the ring spinner animation */
-@keyframes ring-spinner {
+/* Inner ring spinner effect:
+     - Creates a smaller ring inside the main spinner with a background gradient effect.
+     - Uses a reverse animation to make it spin in the opposite direction with a slower duration for visual contrast. */
+.ring-spinner:before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, rgba(74, 144, 226, 0.3), transparent);
+  animation: spin 1.5s ease-in-out infinite reverse;
+}
+
+/* Spin animation keyframes:
+     - Rotates the spinner from 0° to 360° over the course of 1 second for a continuous loop. */
+@keyframes spin {
   0% {
-    transform: rotate(0deg); /* Start rotation */
-    box-shadow: 1px 5px 2px #e65c00; /* Initial shadow color */
-  }
-  50% {
-    transform: rotate(180deg); /* Rotate halfway */
-    box-shadow: 1px 5px 2px #18b201; /* Midpoint shadow color */
+    transform: rotate(0deg);
   }
   100% {
-    transform: rotate(360deg); /* Complete rotation */
-    box-shadow: 1px 5px 2px #0456c8; /* End shadow color */
+    transform: rotate(360deg);
   }
 }
 
-/* Shadow effect for the ring spinner */
-.ring-spinner:before {
-  position: absolute; /* Position the pseudo-element absolutely */
-  content: ''; /* Required for pseudo-elements */
-  left: 0; /* Align to the left */
-  top: 0; /* Align to the top */
-  height: 100%; /* Match the height of the ring spinner */
-  width: 100%; /* Match the width of the ring spinner */
-  border-radius: 50%; /* Maintain circular shape */
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Subtle shadow effect */
-}
-
-/* Style for the text overlay on the spinner */
+/* Text spinner styling:
+     - Styles the loading text with a blue color (#4a90e2) and uppercase transformation.
+     - Applies letter-spacing and a slightly larger font for emphasis.
+     - Animates the opacity of the text to fade in and out in a continuous loop. */
 .text-spinner {
-  color: #000000; /* Text color */
-  font-size: 20px; /* Set font size */
-  text-transform: uppercase; /* Transform text to uppercase */
-  letter-spacing: 1px; /* Add space between letters */
-  line-height: 200px; /* Center text vertically within the spinner */
-  animation: text-spinner 3s ease-in-out infinite; /* Infinite color change animation */
+  color: #4a90e2;
+  font-size: 16px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 20px;
+  animation: fade-text 1.5s ease-in-out infinite;
 }
 
-/* Keyframes for the text spinner animation */
-@keyframes text-spinner {
+/* Fade-in and fade-out animation for the text:
+     - The text fades in and out by adjusting the opacity from 1 to 0.5 and back to 1, creating a subtle pulsating effect. */
+@keyframes fade-text {
+  0%,
+  100% {
+    opacity: 1;
+  }
   50% {
-    color: white; /* Change text color to white at halfway point */
+    opacity: 0.5;
   }
 }

@@ -1,310 +1,165 @@
-import React, { useState } from 'react';
-import './EnvironmentValidation.css';
-import api from '../../utils/api';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import validate from '../../hooks/submitHandlers/handleSubmitEnvironmentValidation';
+import Dropdown from '../../components/common/Dropdown';
+import Spinner from '../../components/layout/Spinner';
+import Button from '../../components/common/Button';
+import InputField from '../../components/common/InputField';
+import fetchExistsClientsInit from '../../hooks/fetchData/useFetchEnvironmentValidationClientData';
 
-// Initial validation state template used for each validation type.
-const initialValidationState = {
-  status: '',
-  message: '',
-};
+/**
+ * @component EnvironmentValidation
+ * @desc    Handles the validation of environment configurations by allowing users to select a client,
+ *          perform checks for various environment configurations, and display validation results.
+ *          It manages the state of validation statuses, form data, and client selection.
+ * @access  Public
+ *
+ * @returns {JSX.Element} - The JSX structure for the Environment Validation UI, including client selection,
+ *                          validation statuses, and verification button.
+ *
+ * Internal Function Descriptions:
+ *
+ * handleSubmit - Handles the form submission, triggering the environment validation process.
+ * resetValidations - Resets the validation states before initiating a new validation process.
+ * getDropdownOptions - Generates the list of available client options based on the fetched client data.
+ */
+const EnvironmentValidation = ({ isEnvObfuscated, existingClientsArray }) => {
+  const [validations, setValidations] = useState(initialValidations);
+  const [clients, setClients] = useState([]);
+  const [selectedClient, setSelectedClient] = useState('');
+  const [alert, setAlert] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [disableSubmit, setDisableSubmit] = useState(false);
 
-const EnvironmentValidation = () => {
-  // State for holding validation results for each step of the validation process.
-  const [validations, setValidations] = useState({
-    TNSPing: initialValidationState,
-    SSHConnection: initialValidationState,
-    DPDir: initialValidationState,
-    DumpCreation: initialValidationState,
-  });
+  useEffect(() => {
+    fetchExistsClientsInit(
+      setClients,
+      setLoading,
+      setAlert,
+      existingClientsArray
+    );
+  }, []);
 
-  // Form data state for capturing user input.
-  const [formData, setFormData] = useState({
-    DBUser: '',
-    DBPassword: '',
-    DBInstance: '',
-    DPDIRPath: '',
-    DBServerUser: '',
-    TTMDirDBIndentifier: '',
-  });
-
-  // Destructuring formData for easier access in the form.
-  const {
-    DBUser,
-    DBPassword,
-    DBInstance,
-    DPDIRPath,
-    DBServerUser,
-    TTMDirDBIndentifier,
-  } = formData;
-
-  // Handler for updating form data when input fields are changed.
-  const onChange = (e) => {
-    const { name, value } = e.target;
-
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  // Function to reset the validation state back to the initial state before each validation attempt.
-  const resetValidations = () => {
-    setValidations({
-      TNSPing: initialValidationState,
-      SSHConnection: initialValidationState,
-      DPDir: initialValidationState,
-      DumpCreation: initialValidationState,
-    });
-  };
-
-  // Handler for form submission to trigger the validation processes.
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission behavior.
-    resetValidations(); // Reset validation statuses.
-
-    // Delay to ensure reset occurs before the validations start.
-    await new Promise((resolve) => setTimeout(resolve, 10));
-
-    let DBHost; // Will store the host returned by TNS Ping validation.
-
-    // TNS Ping validation
-    try {
-      // Set TNSPing validation to loading state.
-      setValidations((prev) => ({ ...prev, TNSPing: { status: 'loading' } }));
-      const res = await api.post('/environmentValidation/getTNSPingInternal', {
-        DBInstance,
-      });
-      DBHost = res.data.host; // Extract host from response.
-
-      // On success, update the validation state with the host and port.
-      setValidations((prev) => ({
-        ...prev,
-        TNSPing: {
-          status: 'success',
-          message: `${res.data.host}:${res.data.port}`,
-        },
-      }));
-    } catch (error) {
-      // On failure, update the validation state with an error message.
-      setValidations((prev) => ({
-        ...prev,
-        TNSPing: { status: 'failed', message: 'TNSPing validation failed' },
-      }));
-      return; // Exit if TNS Ping fails.
-    }
-
-    // SSH Connection validation
-    try {
-      setValidations((prev) => ({
-        ...prev,
-        SSHConnection: { status: 'loading' },
-      }));
-      await api.post('/environmentValidation/checkSSHConnection', {
-        sshUserAndHost: `${DBServerUser}@${DBHost}`,
-      });
-      setValidations((prev) => ({
-        ...prev,
-        SSHConnection: {
-          status: 'success',
-          message: 'SSH connection successful',
-        },
-      }));
-    } catch (error) {
-      setValidations((prev) => ({
-        ...prev,
-        SSHConnection: { status: 'failed', message: 'SSH connection failed' },
-      }));
-      return; // Exit if SSH connection fails.
-    }
-
-    // DP Directory validation
-    try {
-      setValidations((prev) => ({ ...prev, DPDir: { status: 'loading' } }));
-      await api.post('/environmentValidation/checkDirectory', {
-        DPDIRPath,
-        sshUserAndHost: `${DBServerUser}@${DBHost}`,
-      });
-      setValidations((prev) => ({
-        ...prev,
-        DPDir: { status: 'success', message: 'Directory found' },
-      }));
-    } catch (error) {
-      setValidations((prev) => ({
-        ...prev,
-        DPDir: { status: 'failed', message: 'Directory not found' },
-      }));
-      return; // Exit if DP directory validation fails.
-    }
-
-    // Dump Creation validation
-    try {
-      setValidations((prev) => ({
-        ...prev,
-        DumpCreation: { status: 'loading' },
-      }));
-      const res = await api.post('/environmentValidation/checkDataPumpDump', {
-        TTMDirDBIndentifier,
-        DBConnectionString: `${DBUser}/${DBPassword}@${DBInstance}`,
-      });
-      setValidations((prev) => ({
-        ...prev,
-        DumpCreation: { status: 'success', message: res.data },
-      }));
-    } catch (error) {
-      setValidations((prev) => ({
-        ...prev,
-        DumpCreation: { status: 'failed', message: error.response.data },
-      }));
-    }
+    resetValidations();
+    await validate(
+      e,
+      selectedClient,
+      setDisableSubmit,
+      setValidations,
+      setAlert,
+      isEnvObfuscated
+    );
   };
 
-  // Component to display the appropriate validation status icon.
-  const ValidationStatusIcon = ({ status }) => {
-    if (status === 'loading') return <i className='bx bx-loader bx-spin'></i>;
-    if (status === 'success') return <i className='bx bx-check'></i>;
-    if (status === 'failed') return <i className='bx bx-error-circle'></i>;
-    return null;
+  const resetValidations = () => {
+    setValidations(initialValidations);
   };
 
-  // Component to render the validation result for each step.
-  const ValidationResult = ({ label, name, value, status }) => (
-    <div className='environment-validation-page-box-db-details'>
-      <div className='environment-validation-page-box-input'>
-        <span className='environment-validation-page-box-input-title'>
-          {label}
-        </span>
-        <input value={value} name={name} type='text' readOnly />
-      </div>
-      <ValidationStatusIcon status={status} />
-    </div>
-  );
+  const getDropdownOptions = () => {
+    if (!clients) return;
+    return Object.keys(clients)
+      .filter((key) => clients[key].exists)
+      .flatMap((item) => [`${item} Source`, `${item} Target`]);
+  };
+
+  if (loading) return <Spinner />;
 
   return (
     <div className='page-fixed-position-sidebar'>
-      <div className='environment-validation-page-container'>
-        <div className='environment-validation-page-box-container'>
-          <div className='environment-validation-page-box-title'>
-            <h1>Validate environement configuration</h1>
-          </div>
-          <div className='environment-validation-page-box-submit-alert'></div>
-          <div className='environment-validation-page-boxx-form'>
-            <div className='environment-validation-page-box-db-details'>
-              <div className='environment-validation-page-box-input'>
-                <span className='environment-validation-page-box-input-title'>
-                  DB User
-                </span>
-                <input
-                  value={DBUser}
-                  name='DBUser'
-                  onChange={(e) => onChange(e)}
-                  type='text'
-                  required
-                ></input>
-              </div>
-              <div className='environment-validation-page-box-input'>
-                <span className='environment-validation-page-box-input-title'>
-                  DB Password
-                </span>
-                <input
-                  value={DBPassword}
-                  name='DBPassword'
-                  onChange={(e) => onChange(e)}
-                  type='password'
-                  required
-                ></input>
-              </div>
-              <div className='environment-validation-page-box-input'>
-                <span className='environment-validation-page-box-input-title'>
-                  DB Instance
-                </span>
-                <input
-                  value={DBInstance}
-                  name='DBInstance'
-                  onChange={(e) => onChange(e)}
-                  type='text'
-                  required
-                ></input>
-              </div>
+      <div className='page-container'>
+        <div className='global-page-alert failed'>{alert}</div>
+        <div className='component-container'>
+          <h1>Validate environement configuration</h1>
+
+          <Dropdown
+            selected={selectedClient}
+            setSelected={setSelectedClient}
+            options={getDropdownOptions()}
+            title='Select Client'
+          />
+          <Button
+            onClick={handleSubmit}
+            title='Verify'
+            disabled={alert || !selectedClient || disableSubmit}
+            fullWidth={true}
+          />
+
+          {Object.keys(validations).map((validationKey) => (
+            <div className='elements-in-one-line' key={validationKey}>
+              <InputField
+                title={getValidationTitle(validationKey)}
+                name={`${validationKey}String`}
+                value={validations[validationKey].message || ''}
+                readOnly
+              />
+              <ValidationStatusIcon
+                status={validations[validationKey].status}
+              />
             </div>
-          </div>
-          <div className='environment-validation-page-boxx-form'>
-            <div className='environment-validation-page-box-db-details'>
-              <div className='environment-validation-page-box-input'>
-                <span className='environment-validation-page-box-input-title'>
-                  Data Pump Directory path
-                </span>
-                <input
-                  value={DPDIRPath}
-                  name='DPDIRPath'
-                  onChange={(e) => onChange(e)}
-                  type='text'
-                  required
-                ></input>
-              </div>
-              <div className='environment-validation-page-box-input'>
-                <span className='environment-validation-page-box-input-title'>
-                  User to DB Server
-                </span>
-                <input
-                  value={DBServerUser}
-                  name='DBServerUser'
-                  onChange={(e) => onChange(e)}
-                  type='text'
-                  required
-                ></input>
-              </div>
-              <div className='environment-validation-page-box-input'>
-                <span className='environment-validation-page-box-input-title'>
-                  TTM dir DB indentifier
-                </span>
-                <input
-                  value={TTMDirDBIndentifier}
-                  name='TTMDirDBIndentifier'
-                  onChange={(e) => onChange(e)}
-                  type='text'
-                  required
-                ></input>
-              </div>
-            </div>
-          </div>
-          <div className='environment-validation-page-box-submit'>
-            <button
-              onClick={(e) => {
-                handleSubmit(e);
-              }}
-              className='environment-validation-page-box-input-button'
-            >
-              Verify
-            </button>
-          </div>
-          <ValidationResult
-            label='DB Server:Port based on TNS Ping'
-            name='DBServerDBPortString'
-            value={validations.TNSPing.message}
-            status={validations.TNSPing.status}
-          />
-          <ValidationResult
-            label='SSH Connection'
-            name='SSHConnectionString'
-            value={validations.SSHConnection.message}
-            status={validations.SSHConnection.status}
-          />
-          <ValidationResult
-            label='DP Directory on DB Server'
-            name='DPDIRPathString'
-            value={validations.DPDir.message}
-            status={validations.DPDir.status}
-          />
-          <ValidationResult
-            label='Dump creation'
-            name='DumpCreationString'
-            value={validations.DumpCreation.message}
-            status={validations.DumpCreation.status}
-          />
+          ))}
         </div>
       </div>
     </div>
   );
 };
 
-export default EnvironmentValidation;
+/**
+ * @function ValidationStatusIcon
+ * @desc    Renders an icon based on the validation status. It displays different icons
+ *          for loading, success, and failure statuses.
+ * @param {string} status - The status of the validation (e.g., 'loading', 'success', 'failed').
+ * @returns {JSX.Element|null} - The icon representing the current validation status.
+ */
+const ValidationStatusIcon = ({ status }) => {
+  const icons = {
+    loading: 'bx bx-loader bx-spin icon-style',
+    success: 'bx bx-check icon-style-success',
+    failed: 'bx bx-error icon-style-failed',
+  };
+
+  return status ? <i className={`${icons[status] || ''}`} /> : null;
+};
+
+/**
+ * @function getValidationTitle
+ * @desc    Maps the validation key to a human-readable title.
+ * @param {string} validationKey - The key representing the validation (e.g., 'TNSPing').
+ * @returns {string} - The title for the validation check.
+ */
+const getValidationTitle = (validationKey) => {
+  const titles = {
+    TNSPing: 'DB Host',
+    SSHConnection: 'SSH Connection',
+    DPDir: 'DP Directory on DB Server',
+    DumpCreation: 'Export Validation',
+  };
+  return titles[validationKey] || validationKey;
+};
+
+// Initial state for the validation statuses
+const initialValidationState = {
+  status: '',
+  message: '',
+};
+
+// Initial state for each individual validation
+const initialValidations = {
+  TNSPing: { ...initialValidationState },
+  SSHConnection: { ...initialValidationState },
+  DPDir: { ...initialValidationState },
+  DumpCreation: { ...initialValidationState },
+};
+
+EnvironmentValidation.propTypes = {
+  isEnvObfuscated: PropTypes.bool.isRequired,
+  existingClientsArray: PropTypes.array.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  isEnvObfuscated: state.Obfuscation.isEnvObfuscated,
+  existingClientsArray: state.ExistingClients.existingClientsArray,
+});
+
+export default connect(mapStateToProps, {})(EnvironmentValidation);

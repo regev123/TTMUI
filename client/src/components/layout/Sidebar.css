@@ -1,68 +1,124 @@
-/* Reset default margin and padding for all elements, and set box-sizing to border-box for easier width calculations */
+/* General styling for the entire page: */
 * {
-  margin: 0; /* Remove default margin */
-  padding: 0; /* Remove default padding */
-  box-sizing: border-box; /* Include padding and border in element's total width and height */
-  color: rgb(255, 255, 255); /* Default text color for the entire document */
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: #fff;
+  font-family: 'Poppins', sans-serif;
 }
 
-/* Wrapper for the sidebar */
+/* Sidebar wrapper styling: */
 .warpper-sidebar {
-  position: fixed; /* Fixed position to keep it in view when scrolling */
-  top: 0; /* Align to the top of the viewport */
-  left: 0; /* Align to the left of the viewport */
-  height: 100%; /* Full height of the viewport */
-  width: 260px; /* Fixed width for the sidebar */
-  background-color: #11101d; /* Dark background color */
-  z-index: 100; /* Ensure it appears above other elements */
-  transition: all 0.5s ease; /* Smooth transition for any property changes */
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 260px;
+  background-color: #1a1a1a;
+  z-index: 100;
+  transition: all 0.3s ease;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+  border-radius: 0 12px 12px 0;
 }
 
-/* Subject area inside the sidebar */
+/* Sidebar subject/title styling: */
 .warpper-sidebar .sidebar-subject {
-  margin-top: 10px; /* Space above the subject area */
-  margin-left: 10px; /* Space to the left */
+  margin-top: 30px;
+  margin-left: 20px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #fff;
+  display: flex;
+  align-items: center;
 }
 
-/* List container inside the sidebar */
+/* Icon styling inside sidebar subject: */
+.warpper-sidebar .sidebar-subject i {
+  font-size: 24px;
+  margin-left: 10px;
+}
+
+/* Sidebar list styling: */
 .warpper-sidebar .sidebar-list {
-  height: 100%; /* Full height of the sidebar */
-  padding: 30px 0 150px; /* Vertical padding for the list */
-  overflow: auto; /* Enable scrolling for overflow content */
+  height: calc(100% - 100px);
+  padding: 20px 0;
+  overflow-y: auto;
 }
 
-/* Individual list items */
+/* Sidebar list item styling: */
 .warpper-sidebar .sidebar-list li {
-  position: relative; /* Relative positioning for absolute children if needed */
-  list-style: none; /* Remove bullet points */
-  transition: background-color 0.4s ease; /* Smooth transition for background color on hover */
+  position: relative;
+  list-style: none;
+  transition: all 0.3s ease;
+  border-radius: 5px;
+  margin: 3px 0;
 }
 
-/* Icon styles within each list item */
+/* Icon styling for list items: */
 .warpper-sidebar .sidebar-list li i {
-  height: 50px; /* Fixed height for icons */
-  min-width: 78px; /* Minimum width for icons to maintain uniformity */
-  text-align: center; /* Center icons horizontally */
-  line-height: 50px; /* Center icons vertically */
-  font-size: 20px; /* Font size for icons */
-  transition: transform 0.3s ease; /* Smooth transition for any transform changes */
+  height: 50px;
+  min-width: 50px;
+  text-align: center;
+  line-height: 50px;
+  font-size: 22px;
+  transition: transform 0.3s ease;
+  margin-right: 15px;
+  color: #c1c1c1;
 }
 
-/* Change background color on list item hover */
+/* Hover effect for list items: */
 .warpper-sidebar .sidebar-list li:hover {
-  background-color: #300c74; /* Highlight color on hover */
+  background-color: #3e3e3e;
+  transform: translateX(-5px);
 }
 
-/* Anchor tags within list items */
+/* Link styling inside list items: */
 .warpper-sidebar .sidebar-list li a {
-  display: flex; /* Use flexbox for layout */
-  align-items: center; /* Center items vertically */
-  text-decoration: none; /* Remove underline from links */
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  padding: 6px 15px;
+  color: #c1c1c1;
+  font-size: 18px;
+  font-weight: 500;
+  transition: color 0.3s ease, padding-left 0.3s ease;
 }
 
-/* Text within the links */
+/* Hover effect for list item links: */
+.warpper-sidebar .sidebar-list li a:hover {
+  color: #fff;
+  padding-left: 15px;
+}
+
+/* Sidebar link name styling: */
 .warpper-sidebar .sidebar-list li a .sidebar-link-name {
-  font-size: 18px; /* Font size for the link text */
-  font-weight: 400; /* Normal font weight */
-  transition: color 0.4s ease; /* Smooth transition for color changes */
+  font-size: 18px;
+  font-weight: 400;
+  transition: color 0.4s ease;
+}
+
+/* Hover effect for icons inside links: */
+.warpper-sidebar .sidebar-list li a:hover i {
+  transform: scale(1.1);
+  color: #fff;
+}
+
+/* Disable the link and prevent interaction */
+.warpper-sidebar .sidebar-list li a.disabled {
+  pointer-events: none; /* Prevent clicking */
+  color: rgb(255, 0, 0) !important; /* Grey out the text */
+  opacity: 0.5; /* Lower the opacity for visual feedback */
+  cursor: not-allowed; /* Change cursor to show it's disabled */
+}
+
+/* Disable hover effect for disabled links */
+.warpper-sidebar .sidebar-list li a.disabled:hover {
+  color: grey !important; /* Ensure color stays grey even on hover */
+  padding-left: 6px; /* No padding change on hover for disabled links */
+}
+
+/* Disable icon scaling for disabled links */
+.warpper-sidebar .sidebar-list li a.disabled i {
+  transform: none; /* No scale effect on disabled icon */
+  color: grey; /* Grey out the icon */
 }

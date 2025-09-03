@@ -1,40 +1,66 @@
-import React from 'react'; // Importing React and useState for managing state
-import './ToggleButton.css'; // Importing CSS styles for the toggle button component
+import React from 'react';
+import './ToggleButton.css';
 
-// ToggleButton component definition
+/**
+ * @function ToggleButton
+ * @desc    Renders a toggle button component that allows switching between two options.
+ *          Updates the state of the active option when clicked.
+ * @access  Public
+ *
+ * @param {boolean} isDefault - Determines if the default option is currently active.
+ * @param {function} toggleDefaultState - Function to toggle the state of the default option.
+ * @param {string} defaultLabel - The label to display for the default option.
+ * @param {string} secondLabel - The label to display for the second option.
+ * @param {function} setSelected - Function to reset the selected option when a toggle occurs.
+ *
+ * @returns {JSX.Element} - The rendered ToggleButton component containing two toggle buttons.
+ */
 const ToggleButton = ({
-  isDefault, // Boolean indicating which button is active
-  setisDefault, // Function to update the active state
-  defaultOption, // Text for the default option button
-  secondOption, // Text for the second option button
-  setSelected, // Function to reset the selected value
+  isDefault,
+  toggleDefaultState,
+  defaultLabel,
+  secondLabel,
+  setSelected,
 }) => {
-  // Function to handle toggle button clicks
-  const handleToggle = () => {
-    setisDefault(!isDefault); // Toggle the active state
-    setSelected(''); // Reset the selected value
+  const handleButtonClick = (option) => {
+    toggleDefaultState(option === 'default');
+    setSelected('');
   };
 
   return (
     <div className='toggle-button'>
-      {' '}
-      {/* Container for the toggle button */}
-      {/* Button for the default option */}
-      <button
-        className={`toggle-btn ${isDefault ? 'active' : ''}`} // Apply active class based on isDefault
-        onClick={handleToggle} // Handle click event
-      >
-        {defaultOption} {/* Display the default option text */}
-      </button>
-      {/* Button for the second option */}
-      <button
-        className={`toggle-btn ${!isDefault ? 'active' : ''}`} // Apply active class if not isDefault
-        onClick={handleToggle} // Handle click event
-      >
-        {secondOption} {/* Display the second option text */}
-      </button>
+      <ToggleButtonItem
+        label={defaultLabel}
+        isActive={isDefault}
+        onClick={() => handleButtonClick('default')}
+      />
+      <ToggleButtonItem
+        label={secondLabel}
+        isActive={!isDefault}
+        onClick={() => handleButtonClick('second')}
+      />
     </div>
   );
 };
 
-export default ToggleButton; // Exporting the ToggleButton component for use in other parts of the application
+/**
+ * @function ToggleButtonItem
+ * @desc    Renders a single toggle button with a label and active state.
+ * @access  Private
+ *
+ * @param {string} label - The label to display on the toggle button.
+ * @param {boolean} isActive - Determines if the toggle button is in the active state.
+ * @param {function} onClick - The function to call when the button is clicked.
+ *
+ * @returns {JSX.Element} - The rendered ToggleButtonItem component.
+ */
+const ToggleButtonItem = ({ label, isActive, onClick }) => (
+  <button
+    className={`toggle-btn ${isActive ? 'active' : ''}`}
+    onClick={onClick}
+  >
+    {label}
+  </button>
+);
+
+export default ToggleButton;

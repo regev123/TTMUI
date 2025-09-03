@@ -1,116 +1,182 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import './History.css';
-import api from '../../utils/api'; // Import the API utility for making requests
-import ToggleButton from '../../components/layout/ToggleButton'; // Import ToggleButton component
-import Dropdown from '../../components/layout/Dropdown'; // Import Dropdown component
-import Spinner from '../../components/layout/Spinner'; // Import Spinner component for loading state
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import fetchLogs from '../../hooks/fetchData/useFetchHistoryLogs';
+import ToggleButton from '../../components/layout/ToggleButton';
+import Dropdown from '../../components/common/Dropdown';
+import Spinner from '../../components/layout/Spinner';
+import Textarea from '../../components/common/Textarea';
+import AlertMessage from '../../components/common/AlertMessage';
+import Filter from '../../components/common/Filter';
+import Button from '../../components/common/Button';
+import SpinIcon from '../../components/common/SpinIcon';
+import api from '../../utils/api';
 
+/**
+ * @component History
+ * @desc    Displays a UI for viewing history logs. Allows toggling between "Packager" and "Deployer" logs,
+ *          selecting a log file to view its content, and handles loading and error states.
+ * @returns {JSX.Element} - Rendered component containing the log viewer interface.
+ *
+ * Internal Functions:
+ *
+ * fetchLogs - Fetches log data from the server and updates the logs state.
+ * updateLogContent - Updates the content of the selected log file based on the current state.
+ * getSelectedLog - Retrieves the log object corresponding to the selected log file.
+ * getLogFileNames - Retrieves the file names of the logs for the currently selected log type (Packager or Deployer).
+ */
 const History = () => {
-  // State variables to manage component state
-  const [isPackager, setIsPackager] = useState(true); // Toggle between Packager and Deployer logs
-  const [selected, setSelected] = useState(''); // Selected log file name
-  const [logs, setLogs] = useState({ packager: [], deployer: [] }); // Store logs for both Packager and Deployer
-  const [selectedLogContent, setSelectedLogContent] = useState(''); // Content of the selected log
-  const [loading, setLoading] = useState(true); // Loading state for fetch operation
-  const [alert, setAlert] = useState(''); // Alert message for error handling
+  const [isPackager, setIsPackager] = useState(true);
+  const [selectedLog, setSelectedLog] = useState('');
+  const [logs, setLogs] = useState({ packager: [], deployer: [] });
+  const [logContent, setLogContent] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [alertMessage, setAlertMessage] = useState('');
+  const [TTMHomePath, setTTMHomePath] = useState('');
+  const [date, setDate] = useState('');
+  const [status, setStatus] = useState('All');
+  const [logFileNameOptions, setLogFileNameOptions] = useState([]);
+  const [disableDelete, setDisableSubmit] = useState(false);
 
-  // Function to sanitize invalid characters from JSON response
-  const sanitizeJSONString = (str) => {
-    return str
-      .split('')
-      .filter((char) => char >= ' ' && char !== '\u007F')
-      .join('');
+  useEffect(() => {
+    fetchLogs(setIsLoading, setLogs, setAlertMessage, setTTMHomePath);
+  }, []);
+
+  useEffect(() => {
+    setStatus('All');
+    setDate('');
+
+    setLogFileNameOptions(getInitLogsFileOptions());
+  }, [logs, isPackager]);
+
+  useEffect(() => {
+    setLogContent('');
+  }, [isPackager]);
+
+  useEffect(() => {
+    setSelectedLog('');
+    setLogContent('');
+    const initLogs = getInitLogsFileOptions();
+    const filteredByStatus = FilterByStatus(initLogs);
+    const filteredByDate = FilterByDate(filteredByStatus);
+    setLogFileNameOptions(filteredByDate);
+  }, [status, date]);
+
+  const updateLogContent = useCallback(() => {
+    if (isLoading || !selectedLog) return;
+    const currentLog = getSelectedLog();
+    setLogContent(currentLog ? currentLog.fileContent : '');
+  }, [isPackager, selectedLog, logs]);
+
+  const getSelectedLog = () => {
+    const logType = isPackager ? 'packager' : 'deployer';
+    return logs[logType].find((log) => log.fileName === selectedLog);
   };
 
-  // Function to sort logs based on timestamp extracted from filename
-  const sortLogs = (logs) => {
-    return logs.sort((a, b) => {
-      const extractTimestamp = (fileName) =>
-        fileName.match(/_(\d+T\d+)\.log$/)?.[1] || ''; // Extract timestamp using regex
-      return extractTimestamp(b.fileName).localeCompare(
-        extractTimestamp(a.fileName)
-      ); // Compare timestamps
-    });
+  useEffect(() => {
+    updateLogContent();
+  }, [updateLogContent]);
+
+  const getInitLogsFileOptions = () => {
+    const logType = isPackager ? 'packager' : 'deployer';
+    return logs[logType].map((log) => log.fileName);
   };
 
-  // Fetch logs from the server using an async function
-  const fetchLogs = useCallback(async () => {
+  const FilterByStatus = (logsToFilter) => {
+    if (status === 'All') return logsToFilter;
+    if (status === 'Success')
+      return logsToFilter.filter((logName) => logName.endsWith('Success'));
+    else return logsToFilter.filter((logName) => logName.endsWith('Failure'));
+  };
+
+  const FilterByDate = (logsToFilter) => {
+    const formattedDate = date.replace(/-/g, '');
+    return logsToFilter.filter((log) => log.includes(formattedDate));
+  };
+
+  const getCleanFileName = (str) => {
+    return str.replace(/\.log.*/, '.log');
+  };
+
+  const handleDeleteSubmit = async () => {
+    setDisableSubmit(true);
     try {
-      const [resPackager, resDeployer] = await Promise.all([
-        // Fetch both log lists concurrently
-        api.post('/history/getPackagerLogList'),
-        api.post('/history/getDeployerLogList'),
-      ]);
-
-      // Update state with sanitized and sorted logs
-      setLogs({
-        packager: sortLogs(
-          JSON.parse(sanitizeJSONString(resPackager.data.stdout))
-        ),
-        deployer: sortLogs(
-          JSON.parse(sanitizeJSONString(resDeployer.data.stdout))
-        ),
-      });
-    } catch (err) {
-      setAlert(err.response?.data || 'An error occurred'); // Set alert message on error
-      console.error(err); // Log error for debugging
-    } finally {
-      setLoading(false); // Ensure loading is set to false in both success and error cases
-    }
-  }, []); // Empty dependency array to run only on mount
-
-  useEffect(() => {
-    fetchLogs(); // Fetch logs when the component mounts
-  }, [fetchLogs]); // Dependency on fetchLogs to avoid stale closures
-
-  // Update selected log content when `selected` or `isPackager` changes
-  useEffect(() => {
-    if (selected) {
-      // Find the current log based on selected file name
-      const currentLog = logs[isPackager ? 'packager' : 'deployer'].find(
-        (log) => log.fileName === selected
+      await api.delete(
+        `/history/deleteSelectedLog/${getCleanFileName(selectedLog)}`
       );
-      setSelectedLogContent(currentLog ? currentLog.fileContent : ''); // Update log content or reset
-    } else {
-      setSelectedLogContent(''); // Reset content if no log is selected
+      removeLogFromList();
+    } catch (error) {
+      setAlertMessage('Failed to delete Log file');
+    } finally {
+      setDisableSubmit(false);
     }
-  }, [selected, isPackager, logs]); // Dependencies to re-run when these change
+  };
 
-  if (loading) return <Spinner />; // Show loading spinner while fetching logs
+  const removeLogFromList = () => {
+    const logType = isPackager ? 'packager' : 'deployer';
+    const updatedLogs = logs[logType].filter(
+      (log) => log.fileName !== selectedLog
+    );
+    setLogs({ ...logs, [logType]: updatedLogs });
+    setSelectedLog('');
+    setLogContent('');
+  };
+
+  if (isLoading) return <Spinner />;
 
   return (
     <div className='page-fixed-position-sidebar'>
-      <div className='history-page-container'>
-        <div className='history-page-container-run-deployer'>
+      <div className='page-container'>
+        <div>
           <ToggleButton
-            isDefault={isPackager} // Pass current toggle state
-            setisDefault={setIsPackager} // Function to toggle state
-            defaultOption='Packager' // First option label
-            secondOption='Deployer' // Second option label
-            setSelected={setSelected} // Reset selected log when toggling
+            isDefault={isPackager}
+            toggleDefaultState={setIsPackager}
+            defaultLabel='Packager'
+            secondLabel='Deployer'
+            setSelected={setSelectedLog}
           />
         </div>
-        {logs[isPackager ? 'packager' : 'deployer'].length > 0 && (
-          <Dropdown
-            selected={selected} // Current selected log
-            setSelected={setSelected} // Function to update selected log
-            options={logs[isPackager ? 'packager' : 'deployer'].map(
-              (log) => log.fileName
-            )} // Show logs based on current toggle state
-          />
+
+        <Filter
+          date={date}
+          setDate={setDate}
+          status={status}
+          setStatus={setStatus}
+        />
+        <div className='elements-in-one-line'>
+          {logs[isPackager ? 'packager' : 'deployer'].length > 0 && (
+            <Dropdown
+              selected={selectedLog}
+              setSelected={setSelectedLog}
+              options={logFileNameOptions}
+              title='Select Log File'
+            />
+          )}
+
+          {selectedLog && (
+            <div className='elements-in-one-line'>
+              <Button
+                onClick={handleDeleteSubmit}
+                title='Delete'
+                disabled={disableDelete}
+              />
+              {disableDelete && <SpinIcon />}
+            </div>
+          )}
+        </div>
+
+        {alertMessage && (
+          <AlertMessage message={alertMessage} isSuccess={false} />
         )}
 
-        {alert && <span className='history-page-alert'>{alert}</span>}
-        <div className='history-page-textarea-container'>
-          <textarea
-            className='history-page-textarea'
-            value={selectedLogContent} // Show content of selected log
-            readOnly // Prevent editing
-          />
-        </div>
+        <Textarea value={logContent} />
+
+        {selectedLog && (
+          <h2>
+            {TTMHomePath}WORK_DIR/{getCleanFileName(selectedLog)}
+          </h2>
+        )}
       </div>
     </div>
   );
 };
 
-export default History; // Export the History component for use in other parts of the application
+export default History;

@@ -1,0 +1,33 @@
+.file-uploader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #007bff; /* Modern blue color for the border */
+  border-radius: 8px; /* Rounded corners for a modern feel */
+  padding: 30px; /* Increase padding for better spacing */
+  background-color: #f8f9fa; /* Subtle gray background */
+  color: #6c757d; /* Muted text color for modern design */
+  font-family: 'Arial', sans-serif;
+  font-size: 16px; /* Slightly larger text for better readability */
+  transition: all 0.3s ease; /* Smooth transition for hover effects */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  cursor: pointer;
+}
+
+.file-uploader-container:hover {
+  background-color: #e9ecef; /* Slightly darker background on hover */
+  border-color: #0056b3; /* Darker blue border on hover */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.file-uploader-container p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500; /* Slightly bold text for emphasis */
+  color: #343a40; /* Darker text for better readability */
+}
+
+.file-uploader-container input {
+  display: none; /* Keep the input hidden as it's handled by react-dropzone */
+}
