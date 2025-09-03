@@ -1,0 +1,36 @@
+/* ModernLink.css */
+
+/* Styling the link */
+.html-link {
+  width: 175px;
+  text-decoration: none;
+  color: #fff;
+  background-color: #007bff; /* Primary blue */
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  display: inline-block;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover effect */
+.html-link:hover {
+  background-color: #0056b3; /* Darker blue */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+/* Focus effect */
+.html-link:focus {
+  outline: 2px solid #ffca28; /* Highlight color */
+  outline-offset: 2px;
+}
+
+/* Active effect */
+.html-link:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+}

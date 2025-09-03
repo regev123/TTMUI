@@ -1,0 +1,98 @@
+/* Filter container styling:
+   - Uses flexbox for a flexible layout and wraps items to the next line when needed.
+   - Sets a 24px gap between each filter item for spacing.
+   - Applies a light background color (#f5f8fa) to create a soft look for the container.
+   - Adds padding of 20px around the container for spacing.
+   - Rounds the corners with a 12px border-radius for a modern feel.
+   - Applies a soft box-shadow for a subtle elevation effect.
+   - Adds a top margin of 20px to separate it from the content above.
+   - Adds a smooth transition effect for any change in styles (e.g., hover or focus). */
+.filter-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  background-color: #f5f8fa;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
+  transition: all 0.3s ease;
+}
+
+/* Filter item styling:
+     - Displays the filter item as a flex container to align its child elements horizontally.
+     - Uses a gap of 12px between the label and the input for proper spacing.
+     - Sets a fixed width of 300px for each filter item to ensure consistent size. */
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 300px;
+}
+
+/* Label styling within the filter item:
+     - Sets the font size to 16px and the font weight to 600 for prominence.
+     - Uses a dark color (#333) for better contrast and readability.
+     - Removes the bottom margin to align the label properly within the item. */
+.filter-item label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0;
+}
+
+/* Input, date, and select elements inside the filter item:
+     - Adds padding of 10px for comfortable typing or selection.
+     - Sets the font size to 14px for consistency with the label.
+     - Uses a 2px solid border with a light gray color (#ddd).
+     - Rounds the corners of the inputs with an 8px radius.
+     - Applies a white background color for a clean appearance.
+     - Ensures the text color is dark (#333) for readability.
+     - Makes the input elements stretch to 100% of the available width.
+     - Adds a smooth transition effect when the element is interacted with (e.g., focus). */
+.filter-item input[type='text'],
+.filter-item input[type='date'],
+.filter-item select {
+  padding: 10px;
+  font-size: 14px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  color: #333;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+/* Focus state for text, date, and select elements:
+     - Changes the border color to blue (#007bff) when the element is focused to indicate interactivity.
+     - Adds a subtle blue box-shadow for a modern effect when the element is focused. */
+.filter-item input[type='text']:focus,
+.filter-item input[type='date']:focus,
+.filter-item select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Placeholder text styling for text inputs:
+     - Uses a light gray color (#999) for placeholder text to make it distinct from entered text. */
+.filter-item input[type='text']::placeholder {
+  color: #999;
+}
+
+/* Select element styling:
+     - Changes the cursor to a pointer to indicate that it is interactive. */
+.filter-item select {
+  cursor: pointer;
+}
+
+/* Select option text color:
+     - Ensures that the text color within select options is dark (#333) for readability. */
+.filter-item select option {
+  color: #333;
+}
+
+/* Hover effect for the filter container:
+     - Increases the shadow strength when the container is hovered over, giving it a more pronounced lift effect. */
+.filter-container:hover {
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}

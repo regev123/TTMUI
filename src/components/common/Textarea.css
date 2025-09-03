@@ -1,0 +1,78 @@
+/* Styling for the textarea component:
+   - Sets the width to 100% to make the textarea expand across its container.
+   - The height is set to 80vh for a more spacious textarea that adapts to viewport height.
+   - Padding provides extra space inside the textarea for comfortable typing.
+   - Background color is a soft light gray (#f4f7f6) for a modern feel.
+   - Text color is set to a dark gray (#333) for improved readability.
+   - A subtle border with a light gray color (#dcdcdc) gives the textarea a clean, modern look.
+   - Border-radius is set to 12px for rounded corners, contributing to a smoother aesthetic.
+   - Font properties are adjusted for a balanced appearance with appropriate weight and size.
+   - Line height is increased to 1.8 to give more space between lines of text.
+   - The textarea will break long text and preserve whitespace, which helps in displaying pre-formatted text.
+   - Overflow is set to auto to display a scrollbar when the content exceeds the viewable area.
+   - A smooth transition is applied to all properties, creating a pleasant user experience.
+   - The outline is removed to ensure there’s no visual outline when interacting with the element.
+   - Box-sizing is set to border-box to include padding and borders in the element’s total width and height.
+   - Resize is disabled to prevent users from manually resizing the textarea. */
+textarea {
+  width: 100%;
+  height: 100vh;
+  padding: 1.2em 1.4em;
+  background-color: #ffffff;
+  color: #333;
+  border: 2px solid #dcdcdc;
+  border-radius: 12px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-y: auto;
+  transition: all 0.3s ease-in-out;
+  outline: none;
+  box-sizing: border-box;
+  resize: none;
+  margin-top: 20px;
+}
+
+/* Focus effect when the user interacts with the textarea:
+     - When the textarea is focused, the border turns blue (#4e73df) to indicate an active state.
+     - A soft shadow is added around the textarea to highlight it.
+     - The background color changes to white (#ffffff) when focused for contrast. */
+textarea:focus {
+  border-color: #4e73df;
+  box-shadow: 0 0 8px rgba(72, 130, 241, 0.3);
+  background-color: #ffffff;
+}
+
+/* Placeholder styling:
+     - Light gray color for placeholder text to make it distinguishable from the input text.
+     - The font is italicized and has a lighter weight for a soft and unobtrusive look. */
+textarea::placeholder {
+  color: #aaa;
+  font-weight: 300;
+  font-style: italic;
+}
+
+/* Focus state shadow effect:
+     - Adds a deeper shadow effect on focus to give the textarea more depth. */
+textarea:focus {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Custom scrollbar styling:
+     - Sets the width of the scrollbar to 12px for a more modern, slim appearance.
+     - Defines the thumb (scroll handle) color as blue (#4e73df) and the track (background) as light gray (#f0f0f0) for better contrast. */
+textarea {
+  scrollbar-width: 12px;
+  scrollbar-color: #4e73df #f0f0f0;
+}
+
+/* Responsive design:
+     - When the screen width is below 768px (e.g., on mobile devices), the textarea height adjusts to auto.
+     - The font size is reduced to 14px for better readability on smaller screens. */
+@media (max-width: 768px) {
+  textarea {
+    height: auto;
+    font-size: 14px;
+  }
+}
