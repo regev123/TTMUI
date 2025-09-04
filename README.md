@@ -12,3 +12,5 @@ Technologies:
 Frontend: React.js
 Backend: Node.js
 Environment: Linux
+
+![ccfe2dc4-eaf5-4110-81c8-194b2aafdac9](https://github.com/user-attachments/assets/78d2127d-dff8-44f1-8832-b62963b44dd0)
